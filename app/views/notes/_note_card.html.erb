@@ -1,0 +1,30 @@
+<%# Clicking a card loads the note into the #note_detail Turbo Frame (and
+    advances the URL so refresh/back work). %>
+<% unread = note_card.unread_for?(current_user) %>
+<%= link_to note_path(note_card),
+      class: "n-card #{'active' if local_assigns[:active_id] == note_card.id} #{'unread' if unread}",
+      data: { turbo_frame: "note_detail" } do %>
+  <div class="n-card-top">
+    <% if unread %><span class="n-unread" title="Changed since you last viewed it"></span><% end %>
+    <span class="n-title"><%= highlight(note_card.title, params[:q]) %></span>
+    <% if note_card.favorited_by?(current_user) %><span class="n-fav" title="Favourite"><%= icon(:star, size: 14) %></span><% end %>
+    <span class="ghost-dots"><%= icon(:more, size: 16) %></span>
+  </div>
+  <p class="n-snippet"><%= highlight(note_snippet(note_card), params[:q]) %></p>
+  <% shared_tags = note_card.note_shared_tags.sort_by(&:name) %>
+  <% personal_tags = note_card.tags_for(current_user).sort_by(&:name) %>
+  <% if shared_tags.any? || personal_tags.any? %>
+    <div class="n-tags">
+      <% shared_tags.each do |t| %>
+        <span class="tag-pill sm" style="--tag: <%= t.color %>"><%= t.name %></span>
+      <% end %>
+      <% personal_tags.each do |t| %>
+        <span class="tag-pill sm" style="--tag: <%= t.color %>"><%= t.name %></span>
+      <% end %>
+    </div>
+  <% end %>
+  <div class="n-meta">
+    <span class="n-date"><%= note_card.updated_at.strftime("%-d %b %Y · %-l:%M%p") %></span>
+    <span class="role-pill"><%= note_role(note_card) %></span>
+  </div>
+<% end %>

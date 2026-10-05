@@ -1,0 +1,8 @@
+<div class="app-switcher">
+  <%= link_to notes_path, class: "app-switch #{'active' if current == :notes}" do %>
+    <%= icon(:notes, size: 16) %><span class="label">Notes</span>
+  <% end %>
+  <%= link_to calendar_path, class: "app-switch #{'active' if current == :calendar}" do %>
+    <%= icon(:calendar, size: 16) %><span class="label">Calendar</span>
+  <% end %>
+</div>

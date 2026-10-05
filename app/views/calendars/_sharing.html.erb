@@ -1,0 +1,66 @@
+<section class="sharing" id="calendar_sharing">
+  <% if flash[:share_notice] %><p class="share-msg ok"><%= flash[:share_notice] %></p><% end %>
+  <% if flash[:share_alert] %><p class="share-msg err"><%= flash[:share_alert] %></p><% end %>
+
+  <% shares = calendar.calendar_shares.includes(:user) %>
+  <% network_shares = calendar.calendar_network_shares.includes(:network) %>
+
+  <% if shares.any? %>
+    <h4 class="settings-subhead">People</h4>
+    <ul class="member-list">
+      <% shares.each do |s| %>
+        <li>
+          <span class="member-name"><%= s.user.display_name %></span>
+          <span class="badge">Viewer</span>
+          <%= button_to "Remove", manage_calendar_share_path(calendar, s), method: :delete, class: "linkish member-remove" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if network_shares.any? %>
+    <h4 class="settings-subhead">Networks</h4>
+    <ul class="member-list">
+      <% network_shares.each do |s| %>
+        <li>
+          <span class="member-name"><%= s.network.name %></span>
+          <span class="badge">Viewer</span>
+          <%= button_to "Remove", manage_calendar_network_share_path(calendar, s), method: :delete, class: "linkish member-remove" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if shares.empty? && network_shares.empty? %>
+    <p class="muted">This calendar is private — not shared with anyone yet.</p>
+  <% end %>
+
+  <% shared_network_ids = network_shares.map(&:network_id) %>
+  <% networks_available = current_user.networks.order(:name).reject { |n| shared_network_ids.include?(n.id) } %>
+  <% excluded_ids = shares.map(&:user_id) + [calendar.user_id] %>
+  <% people_available = User.joins(:network_memberships)
+                           .where(network_memberships: { network_id: current_user.networks.select(:id) })
+                           .where.not(id: excluded_ids).distinct.order(:name) %>
+
+  <% if networks_available.any? || people_available.any? %>
+    <%= form_with url: manage_calendar_shares_path(calendar), method: :post, class: "share-form" do %>
+      <%= select_tag :share_with,
+            grouped_options_for_select([
+              ["Networks", networks_available.map { |n| [n.name, "network:#{n.id}"] }],
+              ["People in your networks", people_available.map { |u| [u.display_name, "user:#{u.id}"] }]
+            ]),
+            prompt: "Choose a network or person", required: true %>
+      <%= submit_tag "Share", class: "btn" %>
+    <% end %>
+  <% else %>
+    <p class="hint">Join or create a network to share with people directly.</p>
+  <% end %>
+
+  <details class="share-email">
+    <summary>Share by email instead</summary>
+    <%= form_with url: manage_calendar_shares_path(calendar), method: :post, class: "share-form" do %>
+      <%= email_field_tag :email, nil, placeholder: "person@example.com" %>
+      <%= submit_tag "Share", class: "btn" %>
+    <% end %>
+  </details>
+</section>

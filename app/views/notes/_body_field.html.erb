@@ -1,0 +1,10 @@
+<%# Markdown source editor. Wrapped in a stable id so a checklist toggle can
+    replace it with refreshed source via Turbo Stream. %>
+<div id="note_body_field">
+  <%= text_area_tag "note[body]", note.body,
+        id: "note_body",
+        class: "body-input",
+        rows: 18,
+        placeholder: "Write in Markdown…  e.g.  ## Heading, **bold**, - [ ] a task",
+        data: { editor_target: "input", action: "input->editor#schedule" } %>
+</div>

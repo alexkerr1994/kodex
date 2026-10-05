@@ -1,0 +1,97 @@
+<% content_for :title, @network.name %>
+<% can_manage = policy(@network).manage? %>
+
+<div class="app-shell app-shell--settings" data-controller="sidebar" data-sidebar-default-collapsed-value="<%= current_user.start_collapsed %>">
+  <%= render "notes/sidebar", active: :networks %>
+
+  <section class="settings-area">
+    <div class="settings-topbar">
+      <h2><%= @network.name %></h2>
+      <%= link_to "← All networks", profile_path(tab: "networks"), class: "linkish" %>
+    </div>
+
+    <div class="settings-body">
+      <div class="settings-inner">
+        <section class="settings-group">
+          <h3>Members</h3>
+          <ul class="member-list">
+            <% @memberships.each do |m| %>
+              <li>
+                <span class="member-name"><%= m.user.display_name %><%= " (you)" if m.user_id == current_user.id %></span>
+                <span class="badge role-<%= m.role %>"><%= m.role.titleize %></span>
+                <% if can_manage && m.user_id != current_user.id %>
+                  <% if m.member? %>
+                    <%= button_to "Make admin", network_membership_path(@network, m), method: :patch, params: { role: "admin" }, class: "btn ghost small" %>
+                  <% else %>
+                    <%= button_to "Make member", network_membership_path(@network, m), method: :patch, params: { role: "member" }, class: "btn ghost small" %>
+                  <% end %>
+                  <%= button_to "Remove", network_membership_path(@network, m), method: :delete, class: "linkish danger",
+                        form: { data: { turbo_confirm: "Remove #{m.user.display_name} from #{@network.name}?" } } %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+
+        <% others = @memberships.reject { |m| m.user_id == current_user.id } %>
+        <% sole_admin_with_others = @network.admin?(current_user) && @memberships.count(&:admin?) == 1 && others.any? %>
+        <section class="settings-group">
+          <h3>Leave network</h3>
+          <% if sole_admin_with_others %>
+            <p class="muted">You're the only admin. Choose a member to promote to admin — then you'll leave.</p>
+            <%= form_with url: network_leave_path(@network), method: :delete, class: "referral-form" do %>
+              <%= select_tag :successor_id,
+                    options_for_select(others.map { |m| [m.user.display_name, m.id] }),
+                    prompt: "Choose new admin", required: true %>
+              <%= submit_tag "Make admin & leave", class: "btn danger",
+                    data: { turbo_confirm: "Promote the selected member and leave #{@network.name}?" } %>
+            <% end %>
+          <% else %>
+            <p class="muted"><%= @memberships.size <= 1 ? "You're the last member — leaving will delete this network." : "You'll be removed from this network." %></p>
+            <%= button_to "Leave network", network_leave_path(@network), method: :delete, class: "btn danger",
+                  form: { data: { turbo_confirm: "Leave #{@network.name}?" } } %>
+          <% end %>
+        </section>
+
+        <% if can_manage %>
+          <section class="settings-group">
+            <h3>Invite a member</h3>
+            <p class="muted">Invite someone who already has an account; they'll get a pending invitation to accept.</p>
+            <%= form_with url: network_invitations_path(@network), method: :post, class: "referral-form" do %>
+              <%= email_field_tag :email, nil, placeholder: "person@example.com", required: true %>
+              <%= submit_tag "Send invite", class: "btn" %>
+            <% end %>
+
+            <% if @invitations.any? %>
+              <h4 class="settings-subhead">Pending invitations</h4>
+              <ul class="member-list">
+                <% @invitations.each do |inv| %>
+                  <li>
+                    <span class="member-name"><%= inv.invited_user.display_name %></span>
+                    <span class="badge">Pending</span>
+                    <%= button_to "Cancel", network_invitation_path(@network, inv), method: :delete, class: "btn ghost small" %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+          </section>
+
+          <section class="settings-group">
+            <h3>Rename network</h3>
+            <%= form_with model: @network, url: network_path(@network), method: :patch, class: "referral-form" do |f| %>
+              <%= f.text_field :name %>
+              <%= f.submit "Save", class: "btn" %>
+            <% end %>
+          </section>
+
+          <section class="settings-group danger-zone">
+            <h3>Danger zone</h3>
+            <p class="muted">Deleting a network removes it for all members. This cannot be undone.</p>
+            <%= button_to "Delete network", network_path(@network), method: :delete, class: "btn danger",
+                  form: { data: { turbo_confirm: "Delete #{@network.name} for everyone?" } } %>
+          </section>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</div>

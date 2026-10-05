@@ -1,0 +1,69 @@
+<div class="cal-body">
+  <div class="cal-weekdays">
+    <% %w[Mon Tue Wed Thu Fri Sat Sun].each do |wd| %>
+      <div class="cal-weekday"><%= wd %></div>
+    <% end %>
+  </div>
+
+  <%# One grid per week so multi-day events can render as continuous bars that
+      wrap at the week edge. Each week has a background layer (clickable + drag-
+      selectable day cells) and a content layer (numbers, span bars, chips). %>
+  <div class="cal-month" data-controller="cal-drag">
+    <% @grid_start.step(@grid_end, 7).each do |week_start| %>
+      <% week_days = (week_start..week_start + 6).to_a %>
+      <div class="cal-wk">
+        <div class="cal-wk-bg">
+          <% week_days.each do |day| %>
+            <% holiday = @holidays && @holidays[day] %>
+            <div class="cal-day<%= ' is-outside' unless day.month == @month.month %><%= ' is-today' if day == Date.current %><%= ' is-weekend' if day.saturday? || day.sunday? %><%= ' is-holiday' if holiday %>"
+                 data-new-url="<%= new_event_path(date: day) %>"
+                 data-date="<%= day.iso8601 %>"
+                 data-cal-drag-target="day"
+                 data-action="mousedown->cal-drag#start mouseenter->cal-drag#over"
+                 title="<%= holiday ? "#{holiday} · add event on #{day.strftime('%-d %b')}" : "Add event on #{day.strftime('%-d %b')}" %>"></div>
+          <% end %>
+        </div>
+
+        <div class="cal-wk-content">
+          <div class="cal-wk-nums">
+            <% week_days.each do |day| %>
+              <% holiday = @holidays && @holidays[day] %>
+              <div class="cal-numcell<%= ' is-outside' unless day.month == @month.month %>">
+                <span class="cal-daynum<%= ' is-today-num' if day == Date.current %>"><%= day.day %></span>
+                <% if holiday %><span class="cal-holiday" title="<%= holiday %>"><%= holiday %></span><% end %>
+              </div>
+            <% end %>
+          </div>
+
+          <% bars = week_span_bars(week_days, @spans) %>
+          <% if bars.any? %>
+            <div class="cal-wk-spans">
+              <% bars.each do |bar| %>
+                <% e = bar[:event] %>
+                <%= link_to event_path(e, date: e.starts_at.in_time_zone.to_date),
+                      class: "cal-span#{' cont-l' if bar[:continues_left]}#{' cont-r' if bar[:continues_right]}",
+                      style: "grid-column: #{bar[:col]} / span #{bar[:span]}; grid-row: #{bar[:lane] + 1}; --cal: #{e.calendar.color};",
+                      data: { turbo_frame: "event_detail", calendar_id: e.calendar_id } do %>
+                  <span class="cal-span-title"><%= e.title %></span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="cal-wk-singles">
+            <% week_days.each do |day| %>
+              <div class="cal-daycol">
+                <% @events_by_day[day].each do |event| %>
+                  <%= link_to event_path(event, date: day), class: "cal-event", style: "--cal: #{event.calendar.color}", data: { turbo_frame: "event_detail", calendar_id: event.calendar_id } do %>
+                    <% unless event.all_day? %><span class="cal-event-time"><%= event.occurrence_time_label %></span><% end %>
+                    <span class="cal-event-title"><%= event.title %></span>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

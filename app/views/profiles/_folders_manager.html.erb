@@ -1,0 +1,30 @@
+<div id="folders_manager">
+  <% if error.present? %>
+    <div class="errors"><%= error %></div>
+  <% end %>
+
+  <% if folders.any? %>
+    <ul class="tag-manage-list">
+      <% folders.each do |folder| %>
+        <li class="tag-manage-row">
+          <%= form_with model: folder, url: folder_path(folder), method: :patch, class: "tag-manage-form" do |f| %>
+            <%= f.text_field :name, class: "tag-name-input" %>
+            <span class="tag-count"><%= pluralize(folder.notes.count, "note") %></span>
+            <%= f.submit "Save", class: "btn small" %>
+          <% end %>
+          <%= button_to folder_path(folder), method: :delete, class: "linkish danger",
+                form: { data: { turbo_confirm: "Delete folder ‘#{folder.name}’? Its notes will be unfiled, not deleted." } } do %>
+            Delete
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="muted">No folders yet — create one from a note, or add one below.</p>
+  <% end %>
+
+  <%= form_with model: Folder.new, url: folders_path, class: "referral-form" do |f| %>
+    <%= f.text_field :name, placeholder: "New folder name", required: true %>
+    <%= f.submit "Add folder", class: "btn" %>
+  <% end %>
+</div>

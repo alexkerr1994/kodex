@@ -1,0 +1,45 @@
+<% content_for :title, "Your Notes" %>
+
+<% if @view == :board %>
+  <div class="app-shell app-shell--board" data-controller="sidebar" data-sidebar-default-collapsed-value="<%= current_user.start_collapsed %>">
+    <%= render "sidebar", active: @active %>
+    <section class="board-area">
+      <div class="board-topbar">
+        <h2>Board</h2>
+        <%= render "view_toggle", view: @view %>
+      </div>
+      <%= render "board", columns: @columns %>
+    </section>
+  </div>
+<% else %>
+  <div class="app-shell" data-controller="sidebar" data-sidebar-default-collapsed-value="<%= current_user.start_collapsed %>">
+    <%= render "sidebar", active: @active %>
+
+    <section class="list-col" data-controller="cards">
+      <%= render "list_header", view: @view %>
+      <%= turbo_frame_tag "notes_list" do %>
+        <div class="note-cards">
+          <% if @active == :trash %>
+            <% if @notes.any? %>
+              <p class="trash-note">Items in the trash are deleted forever after 30 days.</p>
+              <%= render partial: "trash_card", collection: @notes, as: :note %>
+            <% else %>
+              <p class="nav-empty">Trash is empty.</p>
+            <% end %>
+          <% elsif @notes.any? %>
+            <%= render partial: "note_card", collection: @notes %>
+          <% else %>
+            <p class="nav-empty">No notes<%= @active == :archived ? " archived" : " match your search" if params[:q].present? || @active == :archived %> yet.</p>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <%= turbo_frame_tag "note_detail", class: "detail-col", data: { turbo_action: "advance" } do %>
+      <div class="detail-empty">
+        <%= icon(:notes, size: 40) %>
+        <p>Select a note to read, or press + to create one.</p>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html data-theme="quill">
+  <head>
+    <title><%= content_for(:title) ? "#{content_for(:title)} · KODEX" : "KODEX" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="application-name" content="KODEX">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="auth-body">
+    <main class="auth-panel">
+      <div class="auth-brand"><%= kodex_badge(size: 28) %> <span class="brand-text">KODEX</span></div>
+
+      <% if notice %><p class="auth-flash notice" data-controller="flash" data-action="click->flash#dismiss"><%= notice %></p><% end %>
+      <% if alert %><p class="auth-flash alert" data-controller="flash" data-action="click->flash#dismiss"><%= alert %></p><% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

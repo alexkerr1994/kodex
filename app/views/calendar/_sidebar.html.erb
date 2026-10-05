@@ -1,0 +1,44 @@
+<% own = @own_calendars || current_user.calendars.order(:name).to_a %>
+<% shared = @shared_calendars || [] %>
+<aside class="sidebar">
+  <div class="brand-bar">
+    <span class="brand"><%= kodex_badge(size: 26) %> <span class="brand-text">KODEX</span></span>
+  </div>
+
+  <%= render "shared/app_switcher", current: :calendar %>
+
+  <%= render "shared/user_card" %>
+
+  <nav class="nav">
+    <%= link_to new_event_path(date: Date.current), class: "nav-item" do %>
+      <%= icon(:plus, size: 18) %><span class="label">New event</span>
+    <% end %>
+
+    <p class="nav-label">Your calendars</p>
+    <% own.each do |cal| %>
+      <div class="cal-side-item">
+        <label class="cal-toggle">
+          <input type="checkbox" value="<%= cal.id %>" checked data-action="change->calendar-visibility#toggle" data-calendar-visibility-target="checkbox">
+          <span class="dot" style="background: <%= cal.color %>"></span>
+          <span class="label"><%= cal.name %></span>
+        </label>
+        <%= link_to manage_calendar_path(cal), class: "cal-side-share", title: "Share calendar" do %><%= icon(:share, size: 15) %><% end %>
+      </div>
+    <% end %>
+
+    <% if shared.any? %>
+      <p class="nav-label">Shared with you</p>
+      <% shared.each do |cal| %>
+        <label class="cal-toggle">
+          <input type="checkbox" value="<%= cal.id %>" checked data-action="change->calendar-visibility#toggle" data-calendar-visibility-target="checkbox">
+          <span class="dot" style="background: <%= cal.color %>"></span>
+          <span class="label"><%= cal.name %> <small class="muted">· <%= cal.user.display_name %></small></span>
+        </label>
+      <% end %>
+    <% end %>
+
+    <%= link_to profile_path(tab: "calendars"), class: "nav-item" do %>
+      <%= icon(:settings, size: 18) %><span class="label">Manage calendars</span>
+    <% end %>
+  </nav>
+</aside>

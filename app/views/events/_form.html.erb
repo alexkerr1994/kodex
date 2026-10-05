@@ -1,0 +1,47 @@
+<%# Submits break out of the popover frame so a successful save reloads the
+    whole calendar (showing the new/updated event). %>
+<%= form_with model: event, data: { turbo_frame: "_top" } do |f| %>
+  <% if event.errors.any? %>
+    <div class="errors"><ul><% event.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul></div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :title %>
+    <%= f.text_field :title, autofocus: true, placeholder: "e.g. Dentist" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :calendar_id, "Calendar" %>
+    <%= f.collection_select :calendar_id, current_user.calendars.order(:name), :id, :name %>
+  </div>
+
+  <label class="checkbox"><%= f.check_box :all_day %> All-day event</label>
+
+  <div class="field">
+    <%= f.label :starts_at, "Starts" %>
+    <%= f.datetime_field :starts_at %>
+  </div>
+  <div class="field">
+    <%= f.label :ends_at, "Ends (optional)" %>
+    <%= f.datetime_field :ends_at %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description, "Notes (optional)" %>
+    <%= f.text_area :description, rows: 3 %>
+  </div>
+
+  <div class="field">
+    <%= f.label :recurrence, "Repeat" %>
+    <%= f.select :recurrence, [["Does not repeat", "once"], ["Daily", "daily"], ["Weekly", "weekly"], ["Monthly", "monthly"], ["Yearly", "yearly"]] %>
+  </div>
+  <div class="field">
+    <%= f.label :recurrence_until, "Repeat until (optional)" %>
+    <%= f.date_field :recurrence_until %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit(event.persisted? ? "Save event" : "Create event", class: "btn") %>
+    <button type="button" class="btn ghost" data-action="popover#close">Cancel</button>
+  </div>
+<% end %>

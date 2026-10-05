@@ -1,0 +1,18 @@
+<% content_for :title, @note.title %>
+
+<div class="app-shell" data-controller="sidebar" data-sidebar-default-collapsed-value="<%= current_user.start_collapsed %>">
+  <%= render "sidebar", active: :all %>
+
+  <section class="list-col" data-controller="cards">
+    <%= render "list_header" %>
+    <%= turbo_frame_tag "notes_list" do %>
+      <div class="note-cards">
+        <%= render partial: "note_card", collection: @notes, locals: { active_id: @note.id } %>
+      </div>
+    <% end %>
+  </section>
+
+  <%= turbo_frame_tag "note_detail", class: "detail-col", data: { turbo_action: "advance" } do %>
+    <%= render "detail", note: @note %>
+  <% end %>
+</div>

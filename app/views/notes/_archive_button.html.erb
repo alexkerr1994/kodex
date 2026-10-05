@@ -1,0 +1,7 @@
+<span id="note_archive_<%= note.id %>" class="fav-wrap">
+  <% if note.archived_by?(current_user) %>
+    <%= button_to note_archival_path(note), method: :delete, class: "tool on", title: "Unarchive (remove from your archive)" do %><%= icon(:archive, size: 18) %><% end %>
+  <% else %>
+    <%= button_to note_archival_path(note), method: :post, class: "tool", title: "Archive (hide from your lists)" do %><%= icon(:archive, size: 18) %><% end %>
+  <% end %>
+</span>

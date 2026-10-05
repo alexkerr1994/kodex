@@ -1,0 +1,62 @@
+<% content_for :title, @cal_view == :week ? "Week of #{@week_start.strftime('%-d %b %Y')}" : @month.strftime("%B %Y") %>
+
+<div class="app-shell app-shell--settings" data-controller="sidebar calendar-visibility" data-sidebar-default-collapsed-value="<%= current_user.start_collapsed %>">
+  <%= render "calendar/sidebar" %>
+
+  <section class="settings-area">
+    <%
+      pivot = @cal_view == :week ? @focus : @month
+      label = @cal_view == :week ? "#{@week_start.strftime('%-d %b')} – #{@week_start.end_of_week.strftime('%-d %b %Y')}" : @month.strftime("%B %Y")
+      in_range = @cal_view == :week ? Date.current.between?(@week_start, @week_start.end_of_week) : @month == Date.current.beginning_of_month
+    %>
+    <div class="cal-topbar">
+      <div class="cal-nav">
+        <% if @cal_view == :week %>
+          <%= link_to "‹", calendar_path(cal_view: "week", date: (@week_start - 7).iso8601), class: "cal-nav-btn", title: "Previous week" %>
+        <% else %>
+          <%= link_to "‹", calendar_path(year: (@month << 1).year, month: (@month << 1).month), class: "cal-nav-btn", title: "Previous month" %>
+        <% end %>
+
+        <%# Click the label to jump to any month/year. %>
+        <details class="month-picker" data-controller="details-menu">
+          <summary class="month-picker-summary"><h2><%= label %></h2><%= icon(:chevron, size: 16) %></summary>
+          <div class="month-picker-pop">
+            <%= form_with url: calendar_path, method: :get, data: { turbo_frame: "_top" } do %>
+              <%= hidden_field_tag :cal_view, @cal_view %>
+              <div class="month-picker-selects">
+                <%= select_tag :month, options_for_select((1..12).map { |m| [Date::MONTHNAMES[m], m] }, pivot.month) %>
+                <%= select_tag :year, options_for_select(((Date.current.year - 3)..(Date.current.year + 3)).to_a, pivot.year) %>
+              </div>
+              <%= submit_tag "Go", class: "btn small" %>
+            <% end %>
+          </div>
+        </details>
+
+        <% if @cal_view == :week %>
+          <%= link_to "›", calendar_path(cal_view: "week", date: (@week_start + 7).iso8601), class: "cal-nav-btn", title: "Next week" %>
+        <% else %>
+          <%= link_to "›", calendar_path(year: (@month >> 1).year, month: (@month >> 1).month), class: "cal-nav-btn", title: "Next month" %>
+        <% end %>
+        <% unless in_range %>
+          <%= link_to "Today", calendar_path(cal_view: @cal_view), class: "btn ghost small" %>
+        <% end %>
+      </div>
+
+      <div class="cal-toolbar">
+        <div class="view-toggle">
+          <%= link_to "Month", calendar_path(cal_view: "month", date: @focus.iso8601), class: "vt #{'active' if @cal_view == :month}" %>
+          <%= link_to "Week", calendar_path(cal_view: "week", date: @focus.iso8601), class: "vt #{'active' if @cal_view == :week}" %>
+        </div>
+        <%= link_to new_event_path(date: @focus), class: "btn", data: { turbo_frame: "event_detail" } do %>+ New event<% end %>
+      </div>
+    </div>
+
+    <%= render "calendar/#{@cal_view}" %>
+  </section>
+
+  <%# Event details popover (Turbo-loaded on event click). %>
+  <div data-controller="popover">
+    <div class="event-pop-backdrop" data-popover-target="backdrop" data-action="click->popover#close" hidden></div>
+    <%= turbo_frame_tag "event_detail", class: "event-pop-card", data: { popover_target: "frame", action: "turbo:frame-render->popover#open" } %>
+  </div>
+</div>

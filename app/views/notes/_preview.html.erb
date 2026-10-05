@@ -1,0 +1,12 @@
+<div id="note_preview">
+  <div class="note-body markdown"
+       data-controller="checklist"
+       data-checklist-editable-value="<%= policy(note).update? %>"
+       data-checklist-url-value="<%= toggle_task_note_path(note) %>">
+    <% if note.body.blank? %>
+      <p class="muted">Nothing here yet. Switch to <strong>Edit</strong> and start writing.</p>
+    <% else %>
+      <%= markdown(note.body) %>
+    <% end %>
+  </div>
+</div>

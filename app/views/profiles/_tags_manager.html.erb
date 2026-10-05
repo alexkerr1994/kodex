@@ -1,0 +1,43 @@
+<div id="tags_manager">
+  <% if error.present? %>
+    <div class="errors"><%= error %></div>
+  <% end %>
+
+  <% if tags.empty? %>
+    <p class="muted">You have no tags yet. Add tags from a note to organise your board.</p>
+  <% else %>
+    <ul class="tag-manage-list">
+      <% tags.each do |tag| %>
+        <li class="tag-manage-row">
+          <%= form_with model: tag, url: tag_path(tag), method: :patch, class: "tag-manage-form" do |f| %>
+            <div class="color-picker" data-controller="color-picker">
+              <%= f.hidden_field :color, data: { color_picker_target: "input" } %>
+              <button type="button" class="color-trigger" style="background: <%= tag.color %>"
+                      title="Choose colour" data-color-picker-target="button" data-action="color-picker#toggle"></button>
+              <div class="color-popover" data-color-picker-target="popover" hidden>
+                <div class="color-swatches">
+                  <% Tag::PALETTE.each do |c| %>
+                    <button type="button" class="color-dot" style="background: <%= c %>"
+                            data-color="<%= c %>" data-action="color-picker#pick"></button>
+                  <% end %>
+                </div>
+                <div class="color-custom">
+                  <input type="color" class="color-native" data-color-picker-target="native" data-action="color-picker#useNative">
+                  <input type="text" class="color-hex" maxlength="7" placeholder="#RRGGBB"
+                         data-color-picker-target="hex" data-action="input->color-picker#useHex">
+                </div>
+              </div>
+            </div>
+            <%= f.text_field :name, class: "tag-name-input" %>
+            <span class="tag-count"><%= pluralize(tag.notes.count, "note") %></span>
+            <%= f.submit "Save", class: "btn small" %>
+          <% end %>
+          <%= button_to tag_path(tag), method: :delete, class: "linkish danger",
+                form: { data: { turbo_confirm: "Delete tag ‘#{tag.name}’? It will be removed from your notes." } } do %>
+            Delete
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

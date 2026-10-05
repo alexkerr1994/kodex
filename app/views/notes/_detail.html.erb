@@ -1,0 +1,74 @@
+<% can_edit = policy(note).update? %>
+<% can_share = policy(note).manage_sharing? %>
+<div class="detail" data-controller="editor">
+  <div class="detail-toolbar">
+    <div class="tool-group">
+      <%= render "favorite_button", note: note %>
+      <%= render "archive_button", note: note %>
+      <button type="button" class="tool" title="Add a tag" data-action="editor#focusTags"><%= icon(:tag, size: 18) %></button>
+      <button type="button" class="tool" disabled title="Fullscreen (soon)"><%= icon(:expand, size: 18) %></button>
+      <% if can_share %>
+        <button type="button" class="tool" title="Share" data-action="editor#show" data-editor-name-param="share"><%= icon(:share, size: 18) %></button>
+      <% end %>
+      <button type="button" class="tool" disabled title="Comments (soon)"><%= icon(:comment, size: 18) %></button>
+      <button type="button" class="tool" disabled title="More (soon)"><%= icon(:more, size: 18) %></button>
+      <% if policy(note).destroy? %>
+        <%= button_to note_path(note), method: :delete, class: "tool danger", title: "Delete note",
+              form: { data: { turbo_confirm: "Delete this note?", turbo_frame: "_top" } } do %><%= icon(:trash, size: 18) %><% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render "folder_bar", note: note %>
+  <%= render "shared_tags_bar", note: note %>
+  <%= render "tags_bar", note: note %>
+
+  <% if can_edit %>
+    <div class="editor-tabs">
+      <button type="button" class="tab active" data-editor-target="tab" data-name="edit"
+              data-action="editor#show" data-editor-name-param="edit">Edit</button>
+      <button type="button" class="tab" data-editor-target="tab" data-name="preview"
+              data-action="editor#show" data-editor-name-param="preview">Preview</button>
+      <% if can_share %>
+        <button type="button" class="tab" data-editor-target="tab" data-name="share"
+                data-action="editor#show" data-editor-name-param="share">Share</button>
+      <% end %>
+      <span id="save_status" class="save-status" data-editor-target="status"></span>
+    </div>
+
+    <%= form_with model: note, data: { editor_target: "form" } do |f| %>
+      <div class="pane" data-editor-target="pane" data-name="edit">
+        <%= f.text_field :title, class: "title-input", placeholder: "Untitled",
+              data: { action: "input->editor#schedule" } %>
+
+        <div class="md-toolbar">
+          <button type="button" class="md-btn" title="Heading" data-action="editor#insert" data-editor-before-param="## " data-editor-placeholder-param="Heading" data-editor-block-param="true">H</button>
+          <button type="button" class="md-btn" title="Bold" data-action="editor#insert" data-editor-before-param="**" data-editor-after-param="**" data-editor-placeholder-param="bold"><strong>B</strong></button>
+          <button type="button" class="md-btn" title="Italic" data-action="editor#insert" data-editor-before-param="_" data-editor-after-param="_" data-editor-placeholder-param="italic"><em>I</em></button>
+          <button type="button" class="md-btn" title="Bulleted list" data-action="editor#insert" data-editor-before-param="- " data-editor-placeholder-param="item" data-editor-block-param="true">• List</button>
+          <button type="button" class="md-btn" title="Checklist" data-action="editor#insert" data-editor-before-param="- [ ] " data-editor-placeholder-param="task" data-editor-block-param="true">☐ Task</button>
+          <button type="button" class="md-btn" title="Link" data-action="editor#insert" data-editor-before-param="[" data-editor-after-param="](url)" data-editor-placeholder-param="text">Link</button>
+          <button type="button" class="md-btn" title="Inline code" data-action="editor#insert" data-editor-before-param="`" data-editor-after-param="`" data-editor-placeholder-param="code">Code</button>
+          <button type="button" class="md-btn" title="Table" data-action="editor#insert" data-editor-block-param="true" data-editor-before-param="| Column | Column |&#10;| --- | --- |&#10;| Cell | Cell |&#10;">Table</button>
+        </div>
+
+        <%= render "body_field", note: note %>
+      </div>
+    <% end %>
+
+    <div class="pane" data-editor-target="pane" data-name="preview" hidden>
+      <%= render "preview", note: note %>
+    </div>
+
+    <% if can_share %>
+      <div class="pane" data-editor-target="pane" data-name="share" hidden>
+        <%= render "sharing", note: note %>
+      </div>
+    <% end %>
+  <% else %>
+    <h1 class="detail-title"><%= note.title %></h1>
+    <%= render "preview", note: note %>
+  <% end %>
+
+  <%= render "last_change", note: note %>
+</div>

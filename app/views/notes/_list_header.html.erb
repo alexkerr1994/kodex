@@ -1,0 +1,26 @@
+<div class="list-header">
+  <%= form_with url: notes_path, method: :get, class: "search",
+        data: { controller: "search", action: "input->search#submit",
+                turbo_frame: "notes_list", turbo_action: "advance" } do %>
+    <%= icon(:search, size: 16) %>
+    <%= text_field_tag :q, params[:q], placeholder: "Search", autocomplete: "off" %>
+  <% end %>
+  <%= button_to notes_path, params: { note: { title: "Untitled Note" } },
+        class: "new-note", title: "New note" do %>
+    <%= icon(:plus, size: 18) %>
+  <% end %>
+</div>
+
+<div class="list-title">
+  <%# Only show a title for filtered/search views; the default "All Notes" is omitted. %>
+  <% title =
+       if params[:q].present? then "Results"
+       elsif params[:filter] == "favorites" then "Favorites"
+       elsif params[:filter] == "archived" then "Archived"
+       elsif params[:filter] == "trash" then "Recently Deleted"
+       elsif params[:tag].present? then current_user.tags.find_by(id: params[:tag])&.name || "Tag"
+       elsif params[:folder].present? then current_user.folders.find_by(id: params[:folder])&.name || "Folder"
+       end %>
+  <% if title %><h2><%= title %></h2><% end %>
+  <%= render "view_toggle", view: local_assigns.fetch(:view, :list) %>
+</div>

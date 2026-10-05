@@ -1,0 +1,11 @@
+<div class="tag-combo-create-row" data-tag-combo-target="create" hidden>
+  <button type="button" class="tag-combo-create" data-action="mousedown->tag-combo#createTyped">
+    Create “<span data-tag-combo-target="createLabel"></span>”
+  </button>
+  <div class="tag-combo-colors">
+    <% Tag::PALETTE.each do |c| %>
+      <button type="button" class="color-dot" style="background: <%= c %>" data-color="<%= c %>"
+              data-action="mousedown->tag-combo#createWithColor" title="Create with this colour"></button>
+    <% end %>
+  </div>
+</div>

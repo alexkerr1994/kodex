@@ -1,0 +1,14 @@
+<div class="folder-bar" id="note_folder_<%= note.id %>">
+  <%= icon(:folder, size: 15) %>
+  <%= form_with url: note_filing_path(note), method: :patch, class: "folder-select-form", data: { controller: "autosubmit" } do %>
+    <%= select_tag :folder_id,
+          options_for_select(
+            [["No folder", ""]] + current_user.folders.order(:name).map { |f| [f.name, f.id] },
+            note.folder_for(current_user)&.id
+          ),
+          data: { action: "change->autosubmit#submit" } %>
+  <% end %>
+  <%= form_with url: note_filing_path(note), method: :patch, class: "folder-new-form" do %>
+    <%= text_field_tag :new_folder, nil, placeholder: "New folder…", autocomplete: "off" %>
+  <% end %>
+</div>

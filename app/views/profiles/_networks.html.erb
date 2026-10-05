@@ -1,0 +1,39 @@
+<% invitations = current_user.network_invitations.includes(:network, :invited_by) %>
+<% networks = current_user.networks.order(:name).includes(:network_memberships) %>
+
+<% if invitations.any? %>
+  <section class="settings-group">
+    <h3>Invitations to you</h3>
+    <ul class="member-list">
+      <% invitations.each do |inv| %>
+        <li>
+          <span class="member-name"><strong><%= inv.network.name %></strong> · from <%= inv.invited_by.display_name %></span>
+          <%= button_to "Accept", accept_invitation_path(inv), method: :post, class: "btn small" %>
+          <%= button_to "Decline", decline_invitation_path(inv), method: :delete, class: "btn ghost small" %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<section class="settings-group">
+  <h3>Networks</h3>
+  <% if networks.any? %>
+    <ul class="member-list">
+      <% networks.each do |n| %>
+        <li>
+          <%= link_to n.name, n, class: "member-name" %>
+          <span class="badge"><%= n.admin?(current_user) ? "Admin" : "Member" %></span>
+          <span class="tag-count"><%= pluralize(n.network_memberships.size, "member") %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="muted">You're not in any networks yet — create one below.</p>
+  <% end %>
+
+  <%= form_with model: Network.new, url: networks_path, class: "referral-form" do |f| %>
+    <%= f.text_field :name, placeholder: "e.g. Design team", required: true %>
+    <%= f.submit "Create", class: "btn" %>
+  <% end %>
+</section>

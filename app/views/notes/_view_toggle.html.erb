@@ -1,0 +1,8 @@
+<div class="view-toggle">
+  <%= link_to notes_path(view: :list), class: "vt #{'active' if view == :list}", title: "List view" do %>
+    <%= icon(:notes, size: 15) %> List
+  <% end %>
+  <%= link_to notes_path(view: :board), class: "vt #{'active' if view == :board}", title: "Board view" do %>
+    <%= icon(:board, size: 15) %> Board
+  <% end %>
+</div>

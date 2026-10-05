@@ -1,0 +1,39 @@
+<% can_edit = policy(note).update? %>
+<% shared = note.note_shared_tags.order(:name) %>
+<% if can_edit || shared.any? %>
+  <div class="tags-bar" id="note_shared_tags_<%= note.id %>">
+    <span class="tags-bar-label" title="Everyone who can see this note sees these">Shared</span>
+    <% shared.each do |t| %>
+      <span class="tag-pill" style="--tag: <%= t.color %>">
+        <%= t.name %>
+        <% if can_edit %><%= button_to "×", note_shared_tag_path(note, t), method: :delete, class: "tag-x", title: "Remove shared tag" %><% end %>
+      </span>
+    <% end %>
+
+    <% if can_edit %>
+      <% existing = shared.map { |t| t.name.downcase } %>
+      <% suggestions = NoteSharedTag.where(note_id: current_user.accessible_notes.select(:id))
+                                    .where.not(note_id: note.id).order(:name).map(&:name).uniq
+                                    .reject { |n| existing.include?(n.downcase) } %>
+      <div class="tag-combo" data-controller="tag-combo">
+        <%= form_with url: note_shared_tags_path(note), method: :post, data: { tag_combo_target: "form" } do %>
+          <input type="hidden" name="name" data-tag-combo-target="name">
+          <input type="hidden" name="color" data-tag-combo-target="color">
+          <%= text_field_tag :typed, nil, placeholder: "Add shared tag…", autocomplete: "off",
+                data: { tag_combo_target: "input",
+                        action: "focus->tag-combo#open input->tag-combo#filter keydown->tag-combo#keydown blur->tag-combo#closeSoon" } %>
+        <% end %>
+
+        <div class="tag-combo-menu" data-tag-combo-target="menu" hidden>
+          <p class="tag-combo-hint">Select a tag or create one</p>
+          <% suggestions.each do |name| %>
+            <button type="button" class="tag-combo-option" data-name="<%= name %>" data-action="mousedown->tag-combo#pick">
+              <span class="tag-pill" style="--tag: <%= Tag.color_for(name) %>"><%= name %></span>
+            </button>
+          <% end %>
+          <%= render "notes/tag_combo_create" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

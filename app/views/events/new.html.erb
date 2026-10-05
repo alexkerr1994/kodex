@@ -1,0 +1,17 @@
+<% content_for :title, "New event" %>
+<%# Loaded into the calendar's #event_detail frame → Turbo shows just the frame
+    as a popover. If reached top-level (e.g. a validation-error reload), the
+    .event-form-page wrapper renders it as a standalone page. %>
+<div class="event-form-page">
+  <div class="settings-group">
+    <%= turbo_frame_tag "event_detail" do %>
+      <div class="event-pop-inner event-pop-form">
+        <div class="event-pop-actions">
+          <h3 class="event-pop-title">New event</h3>
+          <button type="button" class="icon-btn" title="Close" data-action="popover#close"><%= icon(:close, size: 18) %></button>
+        </div>
+        <%= render "form", event: @event %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<%# Checkbox clicked in the preview: refresh both the rendered preview and the
+    editor's source so the two stay in sync. %>
+<%= turbo_stream.replace "note_preview" do %>
+  <%= render "preview", note: @note %>
+<% end %>
+<%= turbo_stream.replace "note_body_field" do %>
+  <%= render "body_field", note: @note %>
+<% end %>
+<%= turbo_stream.replace "note_last_change" do %>
+  <%= render "last_change", note: @note %>
+<% end %>

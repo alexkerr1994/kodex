@@ -1,0 +1,7 @@
+<span id="note_favorite_<%= note.id %>" class="fav-wrap">
+  <% if note.favorited_by?(current_user) %>
+    <%= button_to note_favorite_path(note), method: :delete, class: "tool fav on", title: "Remove from favourites" do %><%= icon(:star, size: 18) %><% end %>
+  <% else %>
+    <%= button_to note_favorite_path(note), method: :post, class: "tool fav", title: "Add to favourites" do %><%= icon(:star, size: 18) %><% end %>
+  <% end %>
+</span>

@@ -1,0 +1,64 @@
+<%# Left column: brand, user, and navigation. Sections marked "soon" are
+    placeholders for features we build next (folders, favorites, trash). %>
+<% tags = current_user.tags.order(:name).to_a
+   folders = current_user.folders.order(:name).to_a %>
+<aside class="sidebar">
+  <div class="brand-bar">
+    <span class="brand"><%= kodex_badge(size: 26) %> <span class="brand-text">KODEX</span></span>
+    <button type="button" class="icon-btn" title="Collapse sidebar" data-action="sidebar#toggle"><%= icon(:collapse, size: 18) %></button>
+  </div>
+
+  <%= render "shared/app_switcher", current: :notes %>
+
+  <%= render "shared/user_card" %>
+
+  <nav class="nav">
+    <p class="nav-label">Quick Links</p>
+    <%= link_to notes_path, class: "nav-item #{'active' if local_assigns[:active] == :all}" do %>
+      <%= icon(:notes, size: 18) %><span class="label">All Notes</span>
+      <span class="count"><%= policy_scope(Note).count %></span>
+    <% end %>
+    <%= link_to notes_path(filter: "favorites"), class: "nav-item #{'active' if local_assigns[:active] == :favorites}" do %>
+      <%= icon(:star, size: 18) %><span class="label">Favorites</span>
+      <%= render "notes/fav_count" %>
+    <% end %>
+    <%= link_to notes_path(filter: "archived"), class: "nav-item #{'active' if local_assigns[:active] == :archived}" do %>
+      <%= icon(:archive, size: 18) %><span class="label">Archived</span>
+    <% end %>
+    <%= link_to notes_path(filter: "trash"), class: "nav-item #{'active' if local_assigns[:active] == :trash}" do %>
+      <%= icon(:trash, size: 18) %><span class="label">Recently Deleted</span>
+    <% end %>
+
+    <div class="nav-section" data-controller="collapsible" data-collapsible-key-value="sidebar-tags">
+      <button type="button" class="nav-label nav-label-btn" data-action="collapsible#toggle">
+        <span>Tags</span><%= icon(:chevron, size: 14) %>
+      </button>
+      <div data-collapsible-target="body">
+        <% tags.each do |tag| %>
+          <%= link_to notes_path(tag: tag.id), class: "nav-item #{'active' if params[:tag].to_i == tag.id}" do %>
+            <span class="dot" style="background: <%= tag.color %>"></span><span class="label"><%= tag.name %></span>
+          <% end %>
+        <% end %>
+        <% if tags.empty? %>
+          <span class="nav-empty">No tags yet</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="nav-section" data-controller="collapsible" data-collapsible-key-value="sidebar-folders">
+      <button type="button" class="nav-label nav-label-btn" data-action="collapsible#toggle">
+        <span>Folders</span><%= icon(:chevron, size: 14) %>
+      </button>
+      <div data-collapsible-target="body">
+        <% folders.each do |folder| %>
+          <%= link_to notes_path(folder: folder.id), class: "nav-item #{'active' if params[:folder].to_i == folder.id}" do %>
+            <span class="dot" style="background: var(--muted)"></span><span class="label"><%= folder.name %></span>
+          <% end %>
+        <% end %>
+        <% if folders.empty? %>
+          <span class="nav-empty">No folders yet</span>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+</aside>

@@ -1,0 +1,42 @@
+<%= turbo_frame_tag "event_detail" do %>
+  <div class="event-pop-inner">
+    <div class="event-pop-actions">
+      <% if @editable %>
+        <%= link_to edit_event_path(@event), class: "icon-btn", title: "Edit" do %><%= icon(:pencil, size: 18) %><% end %>
+        <%= button_to event_path(@event), method: :delete, class: "icon-btn", title: "Delete",
+              form: { data: { turbo_frame: "_top", turbo_confirm: "Delete “#{@event.title}”#{' and all its occurrences' unless @event.once?}?" } } do %><%= icon(:trash, size: 18) %><% end %>
+      <% end %>
+      <button type="button" class="icon-btn" title="Close" data-action="popover#close"><%= icon(:close, size: 18) %></button>
+    </div>
+
+    <div class="event-pop-head">
+      <span class="event-dot" style="background: <%= @event.calendar.color %>"></span>
+      <div>
+        <h3 class="event-pop-title"><%= @event.title %></h3>
+        <p class="event-pop-when">
+          <% if @event.multi_day? %>
+            <%= @event.starts_at.in_time_zone.strftime("%a, %-d %b") %> – <%= @event.ends_at.in_time_zone.strftime("%a, %-d %b %Y") %> · All day
+          <% else %>
+            <%= @on_date.strftime("%A, %-d %B %Y") %>
+            <% if @event.all_day? %>
+              · All day
+            <% else %>
+              · <%= @event.starts_at.in_time_zone.strftime("%-l:%M%P") %><% if @event.ends_at %> – <%= @event.ends_at.in_time_zone.strftime("%-l:%M%P") %><% end %>
+            <% end %>
+          <% end %>
+        </p>
+        <% unless @event.once? %>
+          <p class="event-pop-sub">Repeats <%= @event.recurrence %><%= " until #{@event.recurrence_until.strftime('%-d %b %Y')}" if @event.recurrence_until %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @event.description.present? %>
+      <div class="event-pop-row"><%= icon(:notes, size: 16) %><span class="event-pop-desc"><%= simple_format(@event.description) %></span></div>
+    <% end %>
+    <div class="event-pop-row"><%= icon(:calendar, size: 16) %><span><%= @event.calendar.name %></span></div>
+    <% unless @editable %>
+      <div class="event-pop-row"><%= icon(:users, size: 16) %><span>Shared by <%= @event.calendar.user.display_name %> · read-only</span></div>
+    <% end %>
+  </div>
+<% end %>

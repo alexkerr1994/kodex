@@ -1,0 +1,12 @@
+<div class="n-card trash-card">
+  <div class="n-card-top"><span class="n-title"><%= note.title %></span></div>
+  <p class="n-snippet"><%= note_snippet(note) %></p>
+  <div class="n-meta">
+    <span>Deleted <%= time_ago_in_words(note.discarded_at) %> ago</span>
+  </div>
+  <div class="trash-actions">
+    <%= button_to "Restore", restore_note_path(note), method: :patch, class: "btn small" %>
+    <%= button_to "Delete forever", purge_note_path(note), method: :delete, class: "linkish danger",
+          form: { data: { turbo_confirm: "Permanently delete “#{note.title}”? This cannot be undone." } } %>
+  </div>
+</div>

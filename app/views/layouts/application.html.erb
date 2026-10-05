@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<%# Theme comes from the signed-in user's preference (see the Profile page),
+    defaulting to "quill" for signed-out pages. All themes live in application.css. %>
+<html data-theme="<%= current_user&.theme || 'quill' %>">
+  <head>
+    <title><%= content_for(:title) ? "#{content_for(:title)} · KODEX" : "KODEX" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="KODEX">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <div class="flash-stack">
+      <% if notice %><p class="flash notice" data-controller="flash" data-action="click->flash#dismiss"><%= notice %></p><% end %>
+      <% if alert %><p class="flash alert" data-controller="flash" data-action="click->flash#dismiss"><%= alert %></p><% end %>
+    </div>
+
+    <%= yield %>
+
+    <%# Custom confirmation dialog used for all Turbo data-turbo-confirm actions. %>
+    <div class="modal" data-controller="confirm-modal" hidden>
+      <div class="modal-backdrop" data-action="click->confirm-modal#cancel"></div>
+      <div class="modal-card" role="dialog" aria-modal="true">
+        <h3 class="modal-title">Are you sure?</h3>
+        <p class="modal-message" data-confirm-modal-target="message"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" data-action="confirm-modal#cancel">Cancel</button>
+          <button type="button" class="btn danger" data-action="confirm-modal#confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

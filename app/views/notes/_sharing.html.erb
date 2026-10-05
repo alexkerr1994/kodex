@@ -1,0 +1,80 @@
+<section class="sharing" id="note_sharing">
+  <h2>Sharing</h2>
+
+  <% if flash[:share_notice] %><p class="share-msg ok"><%= flash[:share_notice] %></p><% end %>
+  <% if flash[:share_alert] %><p class="share-msg err"><%= flash[:share_alert] %></p><% end %>
+
+  <% memberships = note.note_memberships.includes(:user) %>
+  <% network_shares = note.note_network_shares.includes(:network) %>
+
+  <% if memberships.any? %>
+    <h4 class="settings-subhead">People</h4>
+    <ul class="member-list">
+      <% memberships.each do |m| %>
+        <li>
+          <span class="member-name"><%= m.user.display_name %></span>
+          <span class="badge role-<%= m.access_level %>"><%= m.access_level.titleize %></span>
+          <%= button_to "Remove", note_share_path(note, m), method: :delete, class: "linkish member-remove" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if network_shares.any? %>
+    <h4 class="settings-subhead">Networks</h4>
+    <ul class="member-list">
+      <% network_shares.each do |s| %>
+        <li>
+          <span class="member-name"><%= s.network.name %></span>
+          <span class="badge role-<%= s.access_level %>"><%= s.access_level.titleize %></span>
+          <%= button_to "Remove", note_network_share_path(note, s), method: :delete, class: "linkish member-remove" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if memberships.empty? && network_shares.empty? %>
+    <p class="muted">This note is private — not shared with anyone yet.</p>
+  <% end %>
+
+  <%# Share with a network or a person from your networks. %>
+  <% shared_network_ids = network_shares.map(&:network_id) %>
+  <% networks_available = current_user.networks.order(:name).reject { |n| shared_network_ids.include?(n.id) } %>
+  <% excluded_ids = memberships.map(&:user_id) + [note.owner_id] %>
+  <% people_available = User.joins(:network_memberships)
+                           .where(network_memberships: { network_id: current_user.networks.select(:id) })
+                           .where.not(id: excluded_ids).distinct.order(:name) %>
+
+  <% if networks_available.any? || people_available.any? %>
+    <%= form_with url: note_shares_path(note), method: :post, class: "share-form" do %>
+      <%= select_tag :share_with,
+            grouped_options_for_select([
+              ["Networks", networks_available.map { |n| [n.name, "network:#{n.id}"] }],
+              ["People in your networks", people_available.map { |u| [u.display_name, "user:#{u.id}"] }]
+            ]),
+            prompt: "Choose a network or person", required: true %>
+      <%= select_tag :access_level, options_for_select([["Viewer", "viewer"], ["Editor", "editor"]]) %>
+      <%= submit_tag "Share", class: "btn" %>
+    <% end %>
+  <% else %>
+    <p class="hint">Join or create a network to share with people directly.</p>
+  <% end %>
+
+  <details class="share-email">
+    <summary>Share by email instead</summary>
+    <%= form_with url: note_shares_path(note), method: :post, class: "share-form" do %>
+      <%= email_field_tag :email, nil, placeholder: "person@example.com" %>
+      <%= select_tag :access_level, options_for_select([["Viewer", "viewer"], ["Editor", "editor"]]) %>
+      <%= submit_tag "Share", class: "btn" %>
+    <% end %>
+  </details>
+
+  <div class="share-link" data-controller="clipboard" data-clipboard-text-value="<%= note_url(note) %>">
+    <span class="field-label">Link to this note</span>
+    <p class="hint">Anyone you've shared it with can open this link. It won't grant access on its own.</p>
+    <div class="share-link-row">
+      <input type="text" class="auth-input" readonly value="<%= note_url(note) %>" data-clipboard-target="source">
+      <button type="button" class="btn small" data-action="clipboard#copy" data-clipboard-target="button">Copy</button>
+    </div>
+  </div>
+</section>

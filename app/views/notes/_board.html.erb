@@ -1,0 +1,35 @@
+<div class="board" id="board" data-controller="board">
+  <% columns.each do |col| %>
+    <div class="board-col" data-tag-id="<%= col.tag_id %>">
+      <div class="board-col-head">
+        <span class="dot" style="background: <%= col.color || 'var(--muted)' %>"></span>
+        <span class="board-col-name"><%= col.name %></span>
+        <span class="count"><%= col.notes.size %></span>
+      </div>
+      <div class="board-col-body"
+           data-action="dragover->board#over dragleave->board#leave drop->board#drop">
+        <% if col.notes.empty? %>
+          <p class="board-empty">Drop notes here</p>
+        <% else %>
+          <% col.notes.each do |note| %>
+            <%= link_to note_path(note), class: "board-card", draggable: true,
+                  data: { note_id: note.id, action: "dragstart->board#start dragend->board#end" } do %>
+              <span class="bc-title"><%= highlight(note.title, params[:q]) %></span>
+              <p class="bc-snippet"><%= highlight(note_snippet(note, length: 52), params[:q]) %></p>
+              <% shared_tags = note.note_shared_tags.sort_by(&:name) %>
+              <% if shared_tags.any? %>
+                <div class="n-tags">
+                  <% shared_tags.each do |t| %><span class="tag-pill sm" style="--tag: <%= t.color %>"><%= t.name %></span><% end %>
+                </div>
+              <% end %>
+              <div class="bc-meta">
+                <span><%= note.updated_at.strftime("%-d %b") %></span>
+                <span class="role-pill"><%= note_role(note) %></span>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

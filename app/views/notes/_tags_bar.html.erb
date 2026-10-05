@@ -1,0 +1,33 @@
+<div class="tags-bar" id="note_tags_<%= note.id %>">
+  <span class="tags-bar-label" title="Only you see these">Your tags</span>
+
+  <% assigned = note.tags_for(current_user).sort_by(&:name) %>
+  <% assigned.each do |tag| %>
+    <span class="tag-pill" style="--tag: <%= tag.color %>">
+      <%= tag.name %>
+      <%= button_to "×", note_tag_path(note, tag), method: :delete, class: "tag-x", title: "Remove tag" %>
+    </span>
+  <% end %>
+
+  <% assigned_ids = assigned.map(&:id) %>
+  <% available = current_user.tags.order(:name).reject { |t| assigned_ids.include?(t.id) } %>
+  <div class="tag-combo" data-controller="tag-combo">
+    <%= form_with url: note_tags_path(note), method: :post, data: { tag_combo_target: "form" } do %>
+      <input type="hidden" name="name" data-tag-combo-target="name">
+      <input type="hidden" name="color" data-tag-combo-target="color">
+      <%= text_field_tag :typed, nil, placeholder: "Add tag…", autocomplete: "off",
+            data: { editor_target: "tagInput", tag_combo_target: "input",
+                    action: "focus->tag-combo#open input->tag-combo#filter keydown->tag-combo#keydown blur->tag-combo#closeSoon" } %>
+    <% end %>
+
+    <div class="tag-combo-menu" data-tag-combo-target="menu" hidden>
+      <p class="tag-combo-hint">Select a tag or create one</p>
+      <% available.each do |tag| %>
+        <button type="button" class="tag-combo-option" data-name="<%= tag.name %>" data-action="mousedown->tag-combo#pick">
+          <span class="tag-pill" style="--tag: <%= tag.color %>"><%= tag.name %></span>
+        </button>
+      <% end %>
+      <%= render "notes/tag_combo_create" %>
+    </div>
+  </div>
+</div>

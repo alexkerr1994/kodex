@@ -1,0 +1,3 @@
+<p class="last-change" id="note_last_change">
+  Last change @ <%= note.updated_at.in_time_zone.strftime("%H:%M:%S %d/%m/%Y") %><%= " by #{note.last_edited_by.display_name}" if note.last_edited_by %>
+</p>

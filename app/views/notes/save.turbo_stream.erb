@@ -1,0 +1,15 @@
+<% if @note.errors.any? %>
+  <%= turbo_stream.update "save_status" do %>
+    <span class="save-error"><%= @note.errors.full_messages.to_sentence %></span>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace "note_preview" do %>
+    <%= render "preview", note: @note %>
+  <% end %>
+  <%= turbo_stream.replace "note_last_change" do %>
+    <%= render "last_change", note: @note %>
+  <% end %>
+  <%= turbo_stream.update "save_status" do %>
+    <span class="saved">Saved ✓</span>
+  <% end %>
+<% end %>

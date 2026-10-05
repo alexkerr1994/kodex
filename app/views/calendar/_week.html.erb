@@ -1,0 +1,49 @@
+<div class="cal-week">
+  <div class="cal-week-head">
+    <div class="cal-week-gutter"></div>
+    <% @week_days.each do |day| %>
+      <div class="cal-week-dayhead<%= ' is-today' if day == Date.current %><%= ' is-holiday' if @holidays && @holidays[day] %>">
+        <span class="wd"><%= day.strftime("%a") %></span>
+        <%= link_to day.day, calendar_path(cal_view: "week", date: day.iso8601), class: "dn" %>
+        <% if @holidays && @holidays[day] %><span class="cal-week-holiday" title="<%= @holidays[day] %>"><%= @holidays[day] %></span><% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @week_days.any? { |d| @events_by_day[d].any?(&:all_day?) } %>
+    <div class="cal-allday">
+      <div class="cal-week-gutter">all-day</div>
+      <% @week_days.each do |day| %>
+        <div class="cal-allday-cell">
+          <% @events_by_day[day].select(&:all_day?).each do |event| %>
+            <%= link_to event.title, event_path(event, date: day), class: "cal-event", style: "--cal: #{event.calendar.color}", data: { turbo_frame: "event_detail", calendar_id: event.calendar_id } %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="cal-week-body">
+    <div class="cal-timeaxis">
+      <% (0..23).each do |h| %>
+        <div class="cal-hour" style="height: <%= week_hour_px %>px"><span><%= Time.zone.local(2000, 1, 1, h).strftime("%-l%P") %></span></div>
+      <% end %>
+    </div>
+
+    <div class="cal-week-cols" data-controller="cal-cells" data-action="click->cal-cells#open">
+      <% @week_days.each do |day| %>
+        <div class="cal-week-col<%= ' is-today' if day == Date.current %><%= ' is-weekend' if day.saturday? || day.sunday? %><%= ' is-holiday' if @holidays && @holidays[day] %>" data-new-url="<%= new_event_path(date: day) %>">
+          <% (0..23).each do %><div class="cal-hourline" style="height: <%= week_hour_px %>px"></div><% end %>
+          <% week_event_layout(@events_by_day[day]).each do |pos| %>
+            <% e = pos[:event] %>
+            <%= link_to event_path(e, date: day), class: "cal-wevent",
+                  style: "--cal: #{e.calendar.color}; top: #{pos[:top]}px; height: #{pos[:height]}px; left: #{pos[:left]}%; width: #{pos[:width]}%;", data: { turbo_frame: "event_detail", calendar_id: e.calendar_id } do %>
+              <span class="cal-wevent-time"><%= e.occurrence_time_label %></span>
+              <span class="cal-wevent-title"><%= e.title %></span>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

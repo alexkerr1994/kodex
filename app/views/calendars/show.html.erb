@@ -1,0 +1,19 @@
+<% content_for :title, "Share #{@calendar.name}" %>
+
+<div class="app-shell app-shell--settings" data-controller="sidebar calendar-visibility" data-sidebar-default-collapsed-value="<%= current_user.start_collapsed %>">
+  <%= render "calendar/sidebar" %>
+
+  <section class="settings-area">
+    <div class="settings-topbar">
+      <h2>Share “<%= @calendar.name %>”</h2>
+      <%= link_to "← Back to calendar", calendar_path, class: "linkish" %>
+    </div>
+
+    <div class="settings-body">
+      <div class="settings-inner">
+        <p class="muted">People and networks you share this calendar with can see its events (read-only) overlaid on their own calendar.</p>
+        <%= render "calendars/sharing", calendar: @calendar %>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,29 @@
+<% content_for :title, "Sign in" %>
+
+<h1 class="auth-title">Welcome back.</h1>
+<p class="auth-sub">Sign in to pick up your shared notes.</p>
+
+<%# Social sign-in (Apple / Google) goes here later — deferred for now. %>
+
+<%= form_with model: resource, scope: resource_name, url: session_path(resource_name), method: :post, class: "auth-form" do |f| %>
+  <div class="auth-field">
+    <%= f.label :email, "Email" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com", class: "auth-input" %>
+  </div>
+
+  <div class="auth-field">
+    <%= f.label :password, "Password" %>
+    <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••", class: "auth-input" %>
+  </div>
+
+  <% if devise_mapping.rememberable? %>
+    <label class="auth-remember"><%= f.check_box :remember_me %> Remember me</label>
+  <% end %>
+
+  <%= f.submit "Continue", class: "auth-btn" %>
+<% end %>
+
+<div class="auth-links">
+  <%= link_to "Forgot your password?", new_password_path(resource_name) %>
+  <p class="auth-note">Accounts are invite-only — ask an admin to set one up.</p>
+</div>

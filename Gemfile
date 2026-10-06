@@ -70,7 +70,7 @@ gem "pundit", "~> 2.5"
 
 # Pin json below 3.0 — json 3.0.0 made JSON.parse options keyword-only, which
 # breaks Rails 8.1's encrypted session/cookie decoding (ArgumentError on parse).
-gem "json", "~> 2.21"
+gem "json", "~> 3.0"
 
 gem "commonmarker", "~> 2.10"
 

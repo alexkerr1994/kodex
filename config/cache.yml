@@ -12,5 +12,5 @@ test:
   <<: *default
 
 production:
-  database: cache
+  # No separate `database:` — Solid Cache uses the primary connection.
   <<: *default

@@ -142,7 +142,7 @@ class NotesController < ApplicationController
     end
     if params[:q].present?
       like = "%#{params[:q].strip}%"
-      notes = notes.where("notes.title LIKE :q OR notes.body LIKE :q", q: like)
+      notes = notes.where("notes.title ILIKE :q OR notes.body ILIKE :q", q: like)
     end
 
     # Archived notes only show under the Archived view; excluded everywhere else.

@@ -51,8 +51,8 @@ Rails.application.configure do
   config.cache_store = :solid_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
+  # Solid Queue uses the primary database connection (single-database setup).
   config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
 
   # Host used by links generated in mailer templates (password reset, invites).
   # Railway sets RAILWAY_PUBLIC_DOMAIN automatically, so the free *.up.railway.app

@@ -59,6 +59,11 @@
                 <%= f.label :name, "Display name" %>
                 <%= f.text_field :name, placeholder: "Your name" %>
               </div>
+              <div class="field">
+                <%= f.label :username, "Username" %>
+                <%= f.text_field :username, autocomplete: "username" %>
+                <p class="hint">Used to sign in (alongside your email). Letters, numbers, dots, underscores, hyphens.</p>
+              </div>
             </section>
 
             <section class="settings-group">

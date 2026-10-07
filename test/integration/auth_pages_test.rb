@@ -7,8 +7,23 @@ class AuthPagesTest < ActionDispatch::IntegrationTest
     assert_select "body.auth-body"
     assert_select ".auth-panel"
     assert_select "h1.auth-title"
-    assert_select "input[name=?]", "user[email]"
+    assert_select "input[name=?]", "user[login]" # username-or-email field
     assert_select "input[name=?]", "user[password]"
+  end
+
+  test "you can sign in with a username or an email" do
+    user = User.create!(name: "Pat", email: "pat@test.com", username: "patty", password: "password123")
+
+    post user_session_path, params: { user: { login: "patty", password: "password123" } }
+    assert_redirected_to root_path
+    delete destroy_user_session_path
+
+    post user_session_path, params: { user: { login: "pat@test.com", password: "password123" } }
+    assert_redirected_to root_path
+    delete destroy_user_session_path
+
+    post user_session_path, params: { user: { login: "nope", password: "password123" } }
+    assert_response :unprocessable_entity
   end
 
   test "forgot-password page renders" do

@@ -50,7 +50,7 @@ class ProfilesController < ApplicationController
   private
 
   def profile_params
-    params.require(:user).permit(:name, :theme, :time_zone, :default_view, :start_collapsed, :avatar, :holiday_region)
+    params.require(:user).permit(:name, :username, :theme, :time_zone, :default_view, :start_collapsed, :avatar, :holiday_region)
   end
 
   def account_params

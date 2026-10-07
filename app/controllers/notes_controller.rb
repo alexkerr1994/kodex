@@ -1,5 +1,5 @@
 class NotesController < ApplicationController
-  before_action :set_note, only: %i[show edit update destroy toggle_task restore purge move_tag]
+  before_action :set_note, only: %i[show update destroy toggle_task restore purge move_tag]
 
   # One Kanban column: a tag (or the Untagged catch-all) and its notes.
   Column = Struct.new(:name, :color, :notes, :tag_id)
@@ -26,23 +26,14 @@ class NotesController < ApplicationController
     @memberships = @note.note_memberships.includes(:user)
   end
 
-  def new
-    @note = Note.new
-    authorize @note
-  end
-
   def create
     @note = current_user.owned_notes.build(note_params.merge(last_edited_by: current_user))
     authorize @note
     if @note.save
       redirect_to @note, notice: "Note created."
     else
-      render :new, status: :unprocessable_entity
+      redirect_to notes_path, alert: @note.errors.full_messages.to_sentence.presence || "Could not create note."
     end
-  end
-
-  def edit
-    authorize @note
   end
 
   def update

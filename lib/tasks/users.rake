@@ -8,9 +8,10 @@ namespace :users do
       email: email,
       password: password,
       name: ENV["NAME"].presence,
+      username: ENV["USERNAME"].presence, # defaults to the email local-part if omitted
       role: ENV["ADMIN"] == "true" ? :admin : :member
     )
-    puts "Created #{user.role} #{user.email} (#{user.display_name})."
+    puts "Created #{user.role} #{user.email} (@#{user.username})."
   rescue ActiveRecord::RecordInvalid => e
     abort "Could not create user: #{e.record.errors.full_messages.to_sentence}"
   end

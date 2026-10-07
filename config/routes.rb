@@ -42,7 +42,9 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :notes do
+  # No new/edit: notes are created via a POST button and edited inline in the
+  # detail pane (no standalone form pages).
+  resources :notes, except: %i[new edit] do
     member do
       patch :toggle_task
       patch :restore

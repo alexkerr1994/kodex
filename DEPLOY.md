@@ -1,9 +1,10 @@
 # Deploying KODEX (beta) on Railway
 
 Target: **Railway** (PaaS) using the app's `Dockerfile`. No domain purchase needed —
-Railway gives a free `*.up.railway.app` subdomain. **SQLite** persists on a mounted
-volume. **Email is off** for the beta (infra is in place; see "Enabling email" below).
-Accounts are **invite-only** — created manually by an admin.
+Railway gives a free `*.up.railway.app` subdomain. Data lives in a **managed
+PostgreSQL** database (one DB backs the app + Solid Queue/Cache/Cable); a small
+**volume** holds uploaded files (avatars). **Email is off** for the beta (infra is in
+place; see "Enabling email" below). Accounts are **invite-only** — created by an admin.
 
 ## One-time setup
 
@@ -18,23 +19,31 @@ Accounts are **invite-only** — created manually by an admin.
 2. **Create the project.** Railway → **New Project → Deploy from GitHub repo** → pick the repo.
    Railway reads `railway.json` and builds the `Dockerfile` automatically.
 
-3. **Add a Volume** (critical — SQLite + uploads live here). Service → **Variables/Settings →
-   Volumes → New Volume**, mount path: **`/rails/storage`**.
+3. **Add PostgreSQL.** In the project: **+ New → Database → Add PostgreSQL**. Railway
+   provisions it and exposes a `DATABASE_URL`. Link it to the web service: service →
+   **Variables → + New Variable → Add Reference → `DATABASE_URL`** (from the Postgres
+   service). The app reads `DATABASE_URL` in production automatically.
 
-4. **Set environment variables** (service → **Variables**):
+4. **Add a Volume** for uploaded files (avatars via Active Storage). Service →
+   **Settings → Volumes → New Volume**, mount path: **`/rails/storage`**.
+
+5. **Set environment variables** (service → **Variables**):
    - `RAILS_MASTER_KEY` = the contents of `config/master.key` (decrypts credentials / secret_key_base).
-   - That's the only required one. `RAILS_ENV=production` is already baked into the image,
-     and `RAILWAY_PUBLIC_DOMAIN` is injected by Railway (auto-wires the app host + allowed hosts).
+   - `DATABASE_URL` = the reference added in step 3.
+   - `RAILS_ENV=production` is already baked into the image, and `RAILWAY_PUBLIC_DOMAIN`
+     is injected by Railway (auto-wires the app host + allowed hosts).
 
-5. **Generate a domain.** Service → **Settings → Networking → Generate Domain**
+6. **Generate a domain.** Service → **Settings → Networking → Generate Domain**
    → `something.up.railway.app`. Railway routes to the container port automatically
    (the entrypoint binds the server to `$PORT`).
 
-6. **Deploy.** On boot, `bin/docker-entrypoint` runs `db:prepare`, so all migrations
-   (including `holiday_region` and `note_views`) apply automatically. Health check: `/up`.
+7. **Deploy.** On boot, `bin/docker-entrypoint` runs `db:prepare` against Postgres, so
+   all migrations (schema + Solid Queue/Cache/Cable tables) apply automatically. Health
+   check: `/up`.
 
-> **Keep replicas = 1.** SQLite is a single-file DB on a single volume; do not scale to
-> multiple instances. Fine for a beta.
+> **Keep replicas = 1** for the beta. Postgres itself scales fine, but uploaded files
+> (Active Storage) sit on the single-instance volume — move Active Storage to object
+> storage before running multiple web instances.
 
 ## Create admins (manual, invite-only)
 
@@ -72,5 +81,7 @@ Everything is wired; it's inert until `SMTP_ADDRESS` is set. When ready:
 ## Notes
 
 - `config/deploy.yml` + `.kamal/secrets` remain for an optional self-hosted **Kamal**
-  deploy; they're unused on Railway.
-- Uploaded avatars and all SQLite data live under `/rails/storage` (the volume) — back it up.
+  deploy; they're unused on Railway. (Kamal would need its own Postgres accessory.)
+- The app DB is **managed Postgres** — use Railway's automatic backups.
+- Uploaded avatars (Active Storage) live under `/rails/storage` (the volume) — back it up
+  too, or switch Active Storage to object storage (S3/R2) later.

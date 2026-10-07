@@ -7,6 +7,33 @@ class User < ApplicationRecord
 
   enum :role, { member: 0, admin: 1 }
 
+  # Virtual field for sign-in: accepts a username OR an email.
+  attr_accessor :login
+
+  # Usernames are stored lowercase + trimmed so uniqueness is simple and stable.
+  normalizes :username, with: ->(value) { value.to_s.strip.downcase }
+
+  validates :username, presence: true,
+                       uniqueness: { case_sensitive: false },
+                       length: { maximum: 50 },
+                       format: { with: /\A[a-z0-9._-]+\z/,
+                                 message: "can only contain letters, numbers, dots, underscores, and hyphens" }
+
+  # New accounts default their username to the email local-part if none was given.
+  before_validation :ensure_username, on: :create
+
+  # Let users sign in with either their username or their email.
+  def self.find_for_database_authentication(warden_conditions)
+    conditions = warden_conditions.dup
+    if (login = conditions.delete(:login))
+      where(conditions.to_h)
+        .where("lower(username) = :value OR lower(email) = :value", value: login.to_s.downcase)
+        .first
+    else
+      where(conditions.to_h).first
+    end
+  end
+
   # Selectable UI themes (see application.css). Keep in sync with the theme blocks.
   THEMES = %w[quill clean paper modern].freeze
   DEFAULT_VIEWS = %w[list board].freeze
@@ -35,6 +62,21 @@ class User < ApplicationRecord
     return if avatar.content_type.in?(%w[image/png image/jpeg image/webp])
 
     errors.add(:avatar, "must be a PNG, JPEG, or WEBP image")
+  end
+
+  # Derive a unique username from the email local-part when none was provided.
+  def ensure_username
+    return if username.present?
+
+    base = email.to_s.split("@").first.to_s.downcase.gsub(/[^a-z0-9._-]/, "")
+    base = "user" if base.blank?
+    candidate = base
+    n = 1
+    while self.class.where.not(id: id).exists?(username: candidate)
+      candidate = "#{base}#{n}"
+      n += 1
+    end
+    self.username = candidate
   end
 
   public
@@ -91,7 +133,7 @@ class User < ApplicationRecord
   end
 
   def display_name
-    name.presence || email
+    name.presence || username
   end
 
   # Public holidays for this user's chosen region within a date window, as

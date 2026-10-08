@@ -19,23 +19,21 @@
 
     <div class="settings-body" data-controller="tabs" data-tabs-active-value="<%= @tab %>">
       <div class="editor-tabs settings-tabs">
-        <button type="button" class="tab" data-tabs-target="tab" data-name="interface" data-action="tabs#select" data-tabs-name-param="interface">Preferences</button>
-        <button type="button" class="tab" data-tabs-target="tab" data-name="tags" data-action="tabs#select" data-tabs-name-param="tags">Tags</button>
-        <button type="button" class="tab" data-tabs-target="tab" data-name="folders" data-action="tabs#select" data-tabs-name-param="folders">Folders</button>
-        <button type="button" class="tab" data-tabs-target="tab" data-name="calendars" data-action="tabs#select" data-tabs-name-param="calendars">Calendars</button>
-        <button type="button" class="tab" data-tabs-target="tab" data-name="networks" data-action="tabs#select" data-tabs-name-param="networks">Networks</button>
         <button type="button" class="tab" data-tabs-target="tab" data-name="account" data-action="tabs#select" data-tabs-name-param="account">Account</button>
-        <button type="button" class="tab" data-tabs-target="tab" data-name="referral" data-action="tabs#select" data-tabs-name-param="referral">Referral</button>
+        <button type="button" class="tab" data-tabs-target="tab" data-name="app" data-action="tabs#select" data-tabs-name-param="app">App</button>
+        <button type="button" class="tab" data-tabs-target="tab" data-name="organization" data-action="tabs#select" data-tabs-name-param="organization">Organization</button>
+        <button type="button" class="tab" data-tabs-target="tab" data-name="networks" data-action="tabs#select" data-tabs-name-param="networks">Networks</button>
       </div>
 
       <div class="settings-inner">
-        <%# ================= Preferences ================= %>
-        <div class="pane" data-tabs-target="pane" data-name="interface" hidden>
-          <%= form_with model: @user, url: profile_path, method: :patch, data: { turbo: false } do |f| %>
-            <% if @user.errors.any? && @tab == "interface" %>
-              <div class="errors"><ul><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul></div>
-            <% end %>
+        <%# ================= Account ================= %>
+        <div class="pane" data-tabs-target="pane" data-name="account" hidden>
+          <% if @user.errors.any? && @tab == "account" %>
+            <div class="errors"><ul><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul></div>
+          <% end %>
 
+          <%= form_with model: @user, url: profile_path, method: :patch, data: { turbo: false } do |f| %>
+            <%= hidden_field_tag :return_tab, "account" %>
             <section class="settings-group">
               <h3>Profile</h3>
               <div class="field">
@@ -65,8 +63,65 @@
                 <%= f.text_field :username, autocomplete: "username" %>
                 <p class="hint">Used to sign in (alongside your email). Letters, numbers, dots, underscores, hyphens.</p>
               </div>
+              <div class="actions"><%= f.submit "Save profile", class: "btn" %></div>
+            </section>
+          <% end %>
+
+          <%= form_with model: @user, url: profile_account_path, method: :patch do |f| %>
+            <section class="settings-group">
+              <h3>Email</h3>
+              <div class="field">
+                <%= f.label :email, "Email address" %>
+                <%= f.email_field :email, autocomplete: "email" %>
+              </div>
             </section>
 
+            <section class="settings-group">
+              <h3>Password</h3>
+              <p class="muted">Leave the password fields blank to keep your current password.</p>
+              <div class="field">
+                <%= f.label :password, "New password" %>
+                <%= f.password_field :password, autocomplete: "new-password", placeholder: "••••••••" %>
+              </div>
+              <div class="field">
+                <%= f.label :password_confirmation, "Confirm new password" %>
+                <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+              </div>
+              <div class="field">
+                <%= f.label :current_password, "Current password" %>
+                <%= f.password_field :current_password, autocomplete: "current-password", required: true %>
+                <span class="hint">Required to save any email or password change.</span>
+              </div>
+            </section>
+
+            <div class="actions"><%= f.submit "Update account", class: "btn" %></div>
+          <% end %>
+
+          <section class="settings-group">
+            <h3>Invite a friend</h3>
+            <p class="muted">Send someone an email invitation to join.</p>
+            <%= form_with url: profile_referral_path, method: :post, class: "referral-form" do %>
+              <%= email_field_tag :email, nil, placeholder: "friend@example.com", required: true %>
+              <%= submit_tag "Send invite", class: "btn" %>
+            <% end %>
+          </section>
+
+          <section class="settings-group danger-zone">
+            <h3>Danger zone</h3>
+            <p class="muted">This permanently deletes your account, the notes you own, your tags, and your access to shared notes. This cannot be undone.</p>
+            <%= button_to "Delete my account", profile_path, method: :delete, class: "btn danger",
+                  form: { data: { turbo_confirm: "Permanently delete your account and all notes you own?" } } %>
+          </section>
+        </div>
+
+        <%# ================= App ================= %>
+        <div class="pane" data-tabs-target="pane" data-name="app" hidden>
+          <% if @user.errors.any? && @tab == "app" %>
+            <div class="errors"><ul><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul></div>
+          <% end %>
+
+          <%= form_with model: @user, url: profile_path, method: :patch, data: { turbo: false } do |f| %>
+            <%= hidden_field_tag :return_tab, "app" %>
             <section class="settings-group">
               <h3>Appearance</h3>
               <div class="field">
@@ -102,87 +157,34 @@
               <label class="checkbox"><%= f.check_box :start_collapsed %> Start with the sidebar collapsed</label>
             </section>
 
-            <div class="actions"><%= f.submit "Save preferences", class: "btn" %></div>
+            <div class="actions"><%= f.submit "Save", class: "btn" %></div>
           <% end %>
         </div>
 
-        <%# ================= Tags ================= %>
-        <div class="pane" data-tabs-target="pane" data-name="tags" hidden>
-          <p class="muted">Rename, recolour, or delete your tags. Changes apply everywhere you use them.</p>
-          <%= render "tags_manager", tags: current_user.tags.order(:name), error: nil %>
-        </div>
+        <%# ================= Organization ================= %>
+        <div class="pane" data-tabs-target="pane" data-name="organization" hidden>
+          <section class="settings-group">
+            <h3>Tags</h3>
+            <p class="muted">Rename, recolour, or delete your tags. Changes apply everywhere you use them.</p>
+            <%= render "tags_manager", tags: current_user.tags.order(:name), error: nil %>
+          </section>
 
-        <%# ================= Folders ================= %>
-        <div class="pane" data-tabs-target="pane" data-name="folders" hidden>
-          <p class="muted">Rename or delete your folders. Deleting a folder unfiles its notes — it won't delete them.</p>
-          <%= render "folders_manager", folders: current_user.folders.order(:name), error: nil %>
-        </div>
+          <section class="settings-group">
+            <h3>Folders</h3>
+            <p class="muted">Rename or delete your folders. Deleting a folder unfiles its notes — it won't delete them.</p>
+            <%= render "folders_manager", folders: current_user.folders.order(:name), error: nil %>
+          </section>
 
-        <%# ================= Calendars ================= %>
-        <div class="pane" data-tabs-target="pane" data-name="calendars" hidden>
-          <p class="muted">Create calendars (e.g. Professional, Personal), rename or recolour them. Deleting a calendar also deletes its events.</p>
-          <%= render "calendars_manager", calendars: current_user.calendars.order(:name), error: nil %>
+          <section class="settings-group">
+            <h3>Calendars</h3>
+            <p class="muted">Create calendars (e.g. Professional, Personal), rename or recolour them. Deleting a calendar also deletes its events.</p>
+            <%= render "calendars_manager", calendars: current_user.calendars.order(:name), error: nil %>
+          </section>
         </div>
 
         <%# ================= Networks ================= %>
         <div class="pane" data-tabs-target="pane" data-name="networks" hidden>
           <%= render "networks" %>
-        </div>
-
-        <%# ================= Account ================= %>
-        <div class="pane" data-tabs-target="pane" data-name="account" hidden>
-          <%= form_with model: @user, url: profile_account_path, method: :patch do |f| %>
-            <% if @user.errors.any? && @tab == "account" %>
-              <div class="errors"><ul><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul></div>
-            <% end %>
-
-            <section class="settings-group">
-              <h3>Email</h3>
-              <div class="field">
-                <%= f.label :email, "Email address" %>
-                <%= f.email_field :email, autocomplete: "email" %>
-              </div>
-            </section>
-
-            <section class="settings-group">
-              <h3>Password</h3>
-              <p class="muted">Leave the password fields blank to keep your current password.</p>
-              <div class="field">
-                <%= f.label :password, "New password" %>
-                <%= f.password_field :password, autocomplete: "new-password", placeholder: "••••••••" %>
-              </div>
-              <div class="field">
-                <%= f.label :password_confirmation, "Confirm new password" %>
-                <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-              </div>
-              <div class="field">
-                <%= f.label :current_password, "Current password" %>
-                <%= f.password_field :current_password, autocomplete: "current-password", required: true %>
-                <span class="hint">Required to save any account change.</span>
-              </div>
-            </section>
-
-            <div class="actions"><%= f.submit "Update account", class: "btn" %></div>
-          <% end %>
-
-          <section class="settings-group danger-zone">
-            <h3>Danger zone</h3>
-            <p class="muted">This permanently deletes your account, the notes you own, your tags, and your access to shared notes. This cannot be undone.</p>
-            <%= button_to "Delete my account", profile_path, method: :delete, class: "btn danger",
-                  form: { data: { turbo_confirm: "Permanently delete your account and all notes you own?" } } %>
-          </section>
-        </div>
-
-        <%# ================= Referral ================= %>
-        <div class="pane" data-tabs-target="pane" data-name="referral" hidden>
-          <section class="settings-group">
-            <h3>Invite a friend</h3>
-            <p class="muted">Send someone an email invitation to join.</p>
-            <%= form_with url: profile_referral_path, method: :post, class: "referral-form" do %>
-              <%= email_field_tag :email, nil, placeholder: "friend@example.com", required: true %>
-              <%= submit_tag "Send invite", class: "btn" %>
-            <% end %>
-          </section>
         </div>
       </div>
     </div>

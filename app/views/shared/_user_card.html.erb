@@ -5,8 +5,8 @@
     <% if current_user.avatar.attached? %><%= avatar_image_tag(current_user, 38) %><% else %><%= current_user.display_name.first.upcase %><% end %>
   </div>
   <div class="user-meta">
-    <span class="user-name"><%= current_user.display_name %><%= " · admin" if current_user.admin? %></span>
-    <span class="user-email"><%= current_user.email %></span>
+    <span class="user-name"><%= current_user.display_name %></span>
+    <span class="user-email"><%= current_user.username.present? ? "@#{current_user.username}" : current_user.email %></span>
   </div>
   <button type="button" class="icon-btn user-settings" data-action="menu#toggle" data-menu-target="button" aria-haspopup="menu" aria-expanded="false" title="Account menu">
     <%= icon(:settings, size: 18) %>

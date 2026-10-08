@@ -45,4 +45,29 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "Nadia", named.display_name
     assert_equal "quiet.one", unnamed.display_name
   end
+
+  test "friends include network co-members and note collaborators, excluding self and strangers" do
+    me       = User.create!(name: "Me",       email: "me@test.com",       password: "password123")
+    peer     = User.create!(name: "Peer",     email: "peer@test.com",     password: "password123")
+    sharee   = User.create!(name: "Sharee",   email: "sharee@test.com",   password: "password123")
+    sharer   = User.create!(name: "Sharer",   email: "sharer@test.com",   password: "password123")
+    stranger = User.create!(name: "Stranger", email: "stranger@test.com", password: "password123")
+
+    net = Network.create!(name: "Team")
+    net.network_memberships.create!(user: me,   role: :admin)
+    net.network_memberships.create!(user: peer, role: :member)
+
+    mine = Note.create!(owner: me, title: "Mine")
+    mine.note_memberships.create!(user: sharee, access_level: :viewer)
+
+    theirs = Note.create!(owner: sharer, title: "Theirs")
+    theirs.note_memberships.create!(user: me, access_level: :viewer)
+
+    names = me.friends.map(&:name)
+    assert_includes names, "Peer"    # network co-member
+    assert_includes names, "Sharee"  # I shared a note with them
+    assert_includes names, "Sharer"  # they shared a note with me
+    assert_not_includes names, "Me"       # never self
+    assert_not_includes names, "Stranger" # no connection
+  end
 end

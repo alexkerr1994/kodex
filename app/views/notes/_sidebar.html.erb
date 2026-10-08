@@ -1,7 +1,9 @@
 <%# Left column: brand, user, and navigation. Sections marked "soon" are
     placeholders for features we build next (folders, favorites, trash). %>
 <% tags = current_user.tags.order(:name).to_a
-   folders = current_user.folders.order(:name).to_a %>
+   folders = current_user.folders.order(:name).to_a
+   networks = current_user.networks.order(:name).to_a
+   current_network_id = (@network.id if defined?(@network) && @network) %>
 <aside class="sidebar">
   <div class="brand-bar">
     <span class="brand"><%= kodex_badge(size: 26) %> <span class="brand-text">KODEX</span></span>
@@ -57,6 +59,22 @@
         <% end %>
         <% if folders.empty? %>
           <span class="nav-empty">No folders yet</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="nav-section" data-controller="collapsible" data-collapsible-key-value="sidebar-networks">
+      <button type="button" class="nav-label nav-label-btn" data-action="collapsible#toggle">
+        <span>Networks</span><%= icon(:chevron, size: 14) %>
+      </button>
+      <div data-collapsible-target="body">
+        <% networks.each do |network| %>
+          <%= link_to network_path(network), class: "nav-item #{'active' if current_network_id == network.id}" do %>
+            <%= icon(:users, size: 18) %><span class="label"><%= network.name %></span>
+          <% end %>
+        <% end %>
+        <% if networks.empty? %>
+          <span class="nav-empty">No networks yet</span>
         <% end %>
       </div>
     </div>

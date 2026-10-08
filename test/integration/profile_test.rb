@@ -20,27 +20,29 @@ class ProfileTest < ActionDispatch::IntegrationTest
     # It lives inside the standard app shell (sidebar + content), not a standalone page.
     assert_select ".app-shell--settings .sidebar .brand"
     assert_select ".settings-area"
-    # Four tabs: Preferences (interface), Tags, Account, Referral.
-    assert_select ".settings-tabs .tab[data-name=?]", "interface", text: "Preferences"
-    %w[tags folders calendars networks account referral].each { |t| assert_select ".settings-tabs .tab[data-name=?]", t }
-    assert_select ".settings-tabs .tab", count: 7
-    assert_select "input[name=?][value=?]", "user[theme]", "quill"
-    assert_select "select[name=?]", "user[time_zone]"
-    assert_select "select[name=?]", "user[default_view]"
-    assert_select "input[name=?]", "user[current_password]"
-    assert_select "input[type=file][name=?]", "user[avatar]"
-    assert_select "#tags_manager"       # Tags tab
-    assert_select ".danger-zone"        # inside Account
-    assert_select ".referral-form input[name=?]", "email" # Referral tab
+    # Four tabs: Account, App, Organization, Networks.
+    assert_select ".settings-tabs .tab[data-name=?]", "account", text: "Account"
+    %w[account app organization networks].each { |t| assert_select ".settings-tabs .tab[data-name=?]", t }
+    assert_select ".settings-tabs .tab", count: 4
+    assert_select "input[name=?][value=?]", "user[theme]", "quill" # App tab
+    assert_select "select[name=?]", "user[time_zone]"              # App tab
+    assert_select "select[name=?]", "user[default_view]"          # App tab
+    assert_select "input[name=?]", "user[current_password]"       # Account tab
+    assert_select "input[type=file][name=?]", "user[avatar]"      # Account tab (Profile)
+    assert_select "input[name=?]", "user[username]"               # Account tab (Profile)
+    assert_select "#tags_manager"       # Organization tab
+    assert_select "#calendars_manager"  # Organization tab
+    assert_select ".danger-zone"        # Account tab
+    assert_select ".referral-form input[name=?]", "email" # Account tab (referral)
   end
 
-  test "interface tab updates name, theme, timezone and defaults" do
+  test "profile fields update name, theme, timezone and defaults" do
     sign_in @user
-    patch profile_path, params: { user: {
+    patch profile_path, params: { return_tab: "app", user: {
       name: "Samuel", theme: "modern", time_zone: "London",
       default_view: "board", start_collapsed: "1"
     } }
-    assert_redirected_to profile_path
+    assert_redirected_to profile_path(tab: "app")
     @user.reload
     assert_equal "Samuel", @user.name
     assert_equal "modern", @user.theme
@@ -157,7 +159,7 @@ class ProfileTest < ActionDispatch::IntegrationTest
     assert_enqueued_emails 1 do
       post profile_referral_path, params: { email: "friend@test.com" }
     end
-    assert_redirected_to profile_path(tab: "referral")
+    assert_redirected_to profile_path(tab: "account")
   end
 
   test "referral rejects an invalid email" do
@@ -165,7 +167,7 @@ class ProfileTest < ActionDispatch::IntegrationTest
     assert_no_enqueued_emails do
       post profile_referral_path, params: { email: "not-an-email" }
     end
-    assert_redirected_to profile_path(tab: "referral")
+    assert_redirected_to profile_path(tab: "account")
   end
 
   test "danger zone deletes the account and its notes" do

@@ -116,7 +116,7 @@ class CalendarsTest < ActionDispatch::IntegrationTest
   test "settings has a Calendars tab with a create form" do
     sign_in @user
     get profile_path
-    assert_select ".settings-tabs .tab[data-name=?]", "calendars"
+    assert_select ".settings-tabs .tab[data-name=?]", "organization" # Calendars live under Organization
     assert_select "#calendars_manager"
   end
 

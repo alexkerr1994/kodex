@@ -37,3 +37,21 @@
     <%= f.submit "Create", class: "btn" %>
   <% end %>
 </section>
+
+<% friends = current_user.friends %>
+<section class="settings-group">
+  <h3>Friends</h3>
+  <% if friends.any? %>
+    <p class="muted">People you collaborate with across your networks and shared notes.</p>
+    <ul class="member-list">
+      <% friends.each do |friend| %>
+        <li>
+          <span class="member-name"><%= friend.display_name %></span>
+          <span class="muted">@<%= friend.username %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="muted">No connections yet — join a network or share a note to connect with people.</p>
+  <% end %>
+</section>

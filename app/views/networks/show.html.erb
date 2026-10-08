@@ -5,9 +5,25 @@
   <%= render "notes/sidebar", active: :networks %>
 
   <section class="settings-area">
-    <div class="settings-topbar">
-      <h2><%= @network.name %></h2>
-      <%= link_to "← All networks", profile_path(tab: "networks"), class: "linkish" %>
+    <div class="settings-topbar net-topbar" data-controller="inline-edit">
+      <%= link_to profile_path(tab: "networks"), class: "icon-btn", title: "Back to networks" do %><%= icon(:arrow_left, size: 20) %><% end %>
+
+      <%# Admins rename in place via the pencil; everyone else just sees the name. %>
+      <div class="net-title" data-inline-edit-target="display">
+        <h2><%= @network.name %></h2>
+        <% if can_manage %>
+          <button type="button" class="icon-btn" title="Rename network" data-action="inline-edit#edit"><%= icon(:pencil, size: 18) %></button>
+        <% end %>
+      </div>
+      <% if can_manage %>
+        <div data-inline-edit-target="form" hidden>
+          <%= form_with model: @network, url: network_path(@network), method: :patch, class: "net-title-form" do |f| %>
+            <%= f.text_field :name, data: { inline_edit_target: "input", action: "keydown.esc->inline-edit#cancel" } %>
+            <%= f.submit "Save", class: "btn small" %>
+            <button type="button" class="btn ghost small" data-action="inline-edit#cancel">Cancel</button>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
     <div class="settings-body">
@@ -25,12 +41,34 @@
                   <% else %>
                     <%= button_to "Make member", network_membership_path(@network, m), method: :patch, params: { role: "member" }, class: "btn ghost small" %>
                   <% end %>
-                  <%= button_to "Remove", network_membership_path(@network, m), method: :delete, class: "linkish danger",
+                  <%= button_to "Remove", network_membership_path(@network, m), method: :delete, class: "btn ghost small danger",
                         form: { data: { turbo_confirm: "Remove #{m.user.display_name} from #{@network.name}?" } } %>
                 <% end %>
               </li>
             <% end %>
           </ul>
+
+          <% if can_manage %>
+            <% if @invitations.any? %>
+              <h4 class="settings-subhead">Pending invitations</h4>
+              <ul class="member-list">
+                <% @invitations.each do |inv| %>
+                  <li>
+                    <span class="member-name"><%= inv.invited_user.display_name %></span>
+                    <span class="badge">Pending</span>
+                    <%= button_to "Cancel", network_invitation_path(@network, inv), method: :delete, class: "btn ghost small" %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+
+            <%# Invite is part of the Members section, not its own block. %>
+            <%= form_with url: network_invitations_path(@network), method: :post, class: "referral-form member-invite" do %>
+              <%= email_field_tag :email, nil, placeholder: "Invite someone by email…", required: true %>
+              <%= submit_tag "Send invite", class: "btn" %>
+            <% end %>
+            <p class="hint">They must already have an account; they'll get a pending invitation to accept.</p>
+          <% end %>
         </section>
 
         <% others = @memberships.reject { |m| m.user_id == current_user.id } %>
@@ -54,36 +92,6 @@
         </section>
 
         <% if can_manage %>
-          <section class="settings-group">
-            <h3>Invite a member</h3>
-            <p class="muted">Invite someone who already has an account; they'll get a pending invitation to accept.</p>
-            <%= form_with url: network_invitations_path(@network), method: :post, class: "referral-form" do %>
-              <%= email_field_tag :email, nil, placeholder: "person@example.com", required: true %>
-              <%= submit_tag "Send invite", class: "btn" %>
-            <% end %>
-
-            <% if @invitations.any? %>
-              <h4 class="settings-subhead">Pending invitations</h4>
-              <ul class="member-list">
-                <% @invitations.each do |inv| %>
-                  <li>
-                    <span class="member-name"><%= inv.invited_user.display_name %></span>
-                    <span class="badge">Pending</span>
-                    <%= button_to "Cancel", network_invitation_path(@network, inv), method: :delete, class: "btn ghost small" %>
-                  </li>
-                <% end %>
-              </ul>
-            <% end %>
-          </section>
-
-          <section class="settings-group">
-            <h3>Rename network</h3>
-            <%= form_with model: @network, url: network_path(@network), method: :patch, class: "referral-form" do |f| %>
-              <%= f.text_field :name %>
-              <%= f.submit "Save", class: "btn" %>
-            <% end %>
-          </section>
-
           <section class="settings-group danger-zone">
             <h3>Danger zone</h3>
             <p class="muted">Deleting a network removes it for all members. This cannot be undone.</p>

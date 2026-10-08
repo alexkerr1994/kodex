@@ -289,13 +289,21 @@ mark {
 [data-theme="paper"] .note-card { border-left: 3px solid var(--accent); }
 
 /* ------------------------------------------- Tron neon flourishes -- */
-/* Glowing primary buttons, active nav, brand mark, and big headings. */
+/* Subtle glow that matches each button's own colour (danger glows magenta). */
 [data-theme="tron"] .btn:not(.ghost) {
-  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 [data-theme="tron"] .btn:not(.ghost):hover {
-  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent);
 }
+[data-theme="tron"] .btn.danger {
+  box-shadow: 0 0 8px color-mix(in srgb, var(--danger) 35%, transparent);
+}
+[data-theme="tron"] .btn.danger:hover {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--danger) 50%, transparent);
+}
+/* Selected/unread cards get a full neon border (not just a left edge). */
+[data-theme="tron"] .n-card.unread { border: 1px solid var(--accent); }
 [data-theme="tron"] .nav-item.active {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
               0 0 14px color-mix(in srgb, var(--accent) 22%, transparent);
@@ -691,6 +699,19 @@ mark {
 .settings-area { display: flex; flex-direction: column; overflow: hidden; }
 .settings-topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
 .settings-topbar h2 { margin: 0; font-size: 1.35rem; }
+
+/* Network page: back arrow + inline-editable title. */
+.net-topbar { justify-content: flex-start; gap: .5rem; }
+.net-title { display: flex; align-items: center; gap: .3rem; }
+.net-title[hidden] { display: none; } /* override base display:flex when editing */
+.net-title h2 { margin: 0; font-size: 1.35rem; }
+.net-title-form { display: flex; align-items: center; gap: .5rem; }
+.net-title-form input {
+  font: inherit; font-size: 1.1rem; padding: .4rem .6rem;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text);
+}
+.member-invite { margin-top: .85rem; }
 .settings-body { overflow-y: auto; padding: 1.25rem 1.5rem 3rem; }
 .settings-inner { max-width: 620px; }
 .settings-group { border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }

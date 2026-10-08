@@ -136,6 +136,16 @@ class User < ApplicationRecord
     name.presence || username
   end
 
+  # Lightweight "friends" = people this user already collaborates with:
+  # co-members of their networks, people they've shared notes with, and owners of
+  # notes shared with them. Distinct, excludes self.
+  def friends
+    ids = NetworkMembership.where(network_id: network_memberships.select(:network_id)).distinct.pluck(:user_id)
+    ids += Note.where(id: note_memberships.select(:note_id)).distinct.pluck(:owner_id)
+    ids += NoteMembership.where(note_id: owned_notes.select(:id)).distinct.pluck(:user_id)
+    User.where(id: ids.uniq - [id]).order(:name)
+  end
+
   # Public holidays for this user's chosen region within a date window, as
   # { Date => "Holiday name" }. Empty when no region is selected.
   def holidays_between(from, to)

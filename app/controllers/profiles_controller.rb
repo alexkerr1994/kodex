@@ -1,17 +1,19 @@
 class ProfilesController < ApplicationController
   def show
     @user = current_user
-    @tab ||= params[:tab].presence || "interface"
+    @tab ||= params[:tab].presence || "account"
   end
 
-  # Interface tab: display name, theme, timezone, defaults, avatar.
+  # Profile fields (name/username/avatar on Account; theme/region on App) — both
+  # submit here; `return_tab` says which tab to return to on save/error.
   def update
     @user = current_user
     @user.avatar.purge if params.dig(:user, :remove_avatar) == "1"
+    tab = params[:return_tab].presence || "app"
     if @user.update(profile_params)
-      redirect_to profile_path, notice: "Preferences saved."
+      redirect_to profile_path(tab: tab), notice: "Saved."
     else
-      @tab = "interface"
+      @tab = tab
       render :show, status: :unprocessable_entity
     end
   end
@@ -28,14 +30,14 @@ class ProfilesController < ApplicationController
     end
   end
 
-  # Referral tab: email a friend an invite to sign up.
+  # Referral (lives under the Account tab): email someone an invite to sign up.
   def refer
     email = params[:email].to_s.strip
     if email.match?(URI::MailTo::EMAIL_REGEXP)
       ReferralMailer.invite(current_user, email).deliver_later
-      redirect_to profile_path(tab: "referral"), notice: "Invite sent to #{email}."
+      redirect_to profile_path(tab: "account"), notice: "Invite sent to #{email}."
     else
-      redirect_to profile_path(tab: "referral"), alert: "Please enter a valid email address."
+      redirect_to profile_path(tab: "account"), alert: "Please enter a valid email address."
     end
   end
 

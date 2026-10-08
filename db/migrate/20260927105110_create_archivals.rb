@@ -7,6 +7,6 @@ class CreateArchivals < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :archivals, [:user_id, :note_id], unique: true
+    add_index :archivals, [ :user_id, :note_id ], unique: true
   end
 end

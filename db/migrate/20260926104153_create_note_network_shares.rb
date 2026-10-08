@@ -8,6 +8,6 @@ class CreateNoteNetworkShares < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :note_network_shares, [:note_id, :network_id], unique: true
+    add_index :note_network_shares, [ :note_id, :network_id ], unique: true
   end
 end

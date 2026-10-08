@@ -16,9 +16,9 @@ class Event < ApplicationRecord
   # uses the display zone so occurrences land on the same day they're shown.
   def occurrence_dates(from, to)
     first = starts_at.in_time_zone.to_date
-    last = [to, recurrence_until].compact.min
+    last = [ to, recurrence_until ].compact.min
     return [] if first > last
-    return (first >= from ? [first] : []) if once?
+    return (first >= from ? [ first ] : []) if once?
 
     dates = []
     n = start_index(first, from)

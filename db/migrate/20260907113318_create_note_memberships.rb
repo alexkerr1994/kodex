@@ -8,6 +8,6 @@ class CreateNoteMemberships < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :note_memberships, [:user_id, :note_id], unique: true
+    add_index :note_memberships, [ :user_id, :note_id ], unique: true
   end
 end

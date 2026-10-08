@@ -8,6 +8,6 @@ class CreateNetworkMemberships < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :network_memberships, [:network_id, :user_id], unique: true
+    add_index :network_memberships, [ :network_id, :user_id ], unique: true
   end
 end

@@ -65,8 +65,8 @@ class NoteTest < ActiveSupport::TestCase
     blue = @editor.tags.create!(name: "blue", color: "#00f")
     @note.note_tags.create!(tag: red)
     @note.note_tags.create!(tag: blue)
-    assert_equal ["red"],  @note.tags_for(@owner).map(&:name)
-    assert_equal ["blue"], @note.tags_for(@editor).map(&:name)
+    assert_equal [ "red" ],  @note.tags_for(@owner).map(&:name)
+    assert_equal [ "blue" ], @note.tags_for(@editor).map(&:name)
   end
 
   test "folder_for returns the user's filing" do

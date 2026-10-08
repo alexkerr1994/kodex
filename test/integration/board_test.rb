@@ -17,14 +17,14 @@ class BoardTest < ActionDispatch::IntegrationTest
           headers: { "Accept" => "text/vnd.turbo-stream.html" }
     assert_response :success
     assert_match %r{turbo-stream action="replace" target="board"}, @response.body
-    assert_equal ["Home"], @note.reload.tags_for(@user).map(&:name)
+    assert_equal [ "Home" ], @note.reload.tags_for(@user).map(&:name)
   end
 
   test "dragging from Untagged adds the destination tag" do
     loose = Note.create!(owner: @user, title: "Loose", body: "x")
     sign_in @user
     patch move_tag_note_path(loose), params: { from: "", to: @home.id }
-    assert_equal ["Home"], loose.reload.tags_for(@user).map(&:name)
+    assert_equal [ "Home" ], loose.reload.tags_for(@user).map(&:name)
   end
 
   test "dragging to the Untagged column removes the source tag" do

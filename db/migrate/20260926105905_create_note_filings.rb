@@ -9,6 +9,6 @@ class CreateNoteFilings < ActiveRecord::Migration[8.1]
     end
 
     # One filing per user per note (a note has a single folder home per user).
-    add_index :note_filings, [:user_id, :note_id], unique: true
+    add_index :note_filings, [ :user_id, :note_id ], unique: true
   end
 end

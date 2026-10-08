@@ -12,14 +12,14 @@ class EventTest < ActiveSupport::TestCase
 
   test "a one-off event appears only on its own date" do
     e = event(starts_at: Time.zone.local(2026, 1, 15, 9, 0))
-    assert_equal [Date.new(2026, 1, 15)], e.occurrence_dates(Date.new(2026, 1, 1), Date.new(2026, 1, 31))
+    assert_equal [ Date.new(2026, 1, 15) ], e.occurrence_dates(Date.new(2026, 1, 1), Date.new(2026, 1, 31))
     assert_empty e.occurrence_dates(Date.new(2026, 2, 1), Date.new(2026, 2, 28))
   end
 
   test "weekly recurrence lands every 7 days from the anchor" do
     e = event(starts_at: Time.zone.local(2026, 1, 1, 9, 0), recurrence: :weekly)
     dates = e.occurrence_dates(Date.new(2026, 1, 1), Date.new(2026, 1, 31))
-    assert_equal [1, 8, 15, 22, 29].map { |d| Date.new(2026, 1, d) }, dates
+    assert_equal [ 1, 8, 15, 22, 29 ].map { |d| Date.new(2026, 1, d) }, dates
   end
 
   test "monthly month-end recurrence is computed from the anchor, not compounding" do
@@ -33,13 +33,13 @@ class EventTest < ActiveSupport::TestCase
     e = event(starts_at: Time.zone.local(2026, 1, 1, 9, 0), recurrence: :weekly,
               recurrence_until: Date.new(2026, 1, 15))
     dates = e.occurrence_dates(Date.new(2026, 1, 1), Date.new(2026, 1, 31))
-    assert_equal [Date.new(2026, 1, 1), Date.new(2026, 1, 8), Date.new(2026, 1, 15)], dates
+    assert_equal [ Date.new(2026, 1, 1), Date.new(2026, 1, 8), Date.new(2026, 1, 15) ], dates
   end
 
   test "occurrence anchor uses the display zone" do
     # A time near midnight should bucket on the zone-local date, not the UTC date.
     e = event(starts_at: Time.zone.local(2026, 1, 15, 23, 30))
-    assert_equal [Date.new(2026, 1, 15)], e.occurrence_dates(Date.new(2026, 1, 1), Date.new(2026, 1, 31))
+    assert_equal [ Date.new(2026, 1, 15) ], e.occurrence_dates(Date.new(2026, 1, 1), Date.new(2026, 1, 31))
   end
 
   test "ends_at must be after starts_at" do

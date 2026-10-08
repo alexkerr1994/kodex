@@ -135,7 +135,7 @@ class NotesEditingTest < ActionDispatch::IntegrationTest
            headers: { "Accept" => "text/vnd.turbo-stream.html" }
     end
     assert_match %r{turbo-stream action="replace" target="note_tags_#{@note.id}"}, @response.body
-    assert_equal ["Reading"], @note.tags_for(@viewer).map(&:name)
+    assert_equal [ "Reading" ], @note.tags_for(@viewer).map(&:name)
     assert_empty @note.tags_for(@owner) # the owner doesn't see the viewer's tag
   end
 

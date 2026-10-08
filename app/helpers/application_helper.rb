@@ -47,7 +47,7 @@ module ApplicationHelper
         fill: "none", stroke: "var(--accent-contrast)", "stroke-width": weight,
         "stroke-linecap": "round", "stroke-linejoin": "round",
         transform: "translate(3.6 3.6) scale(0.7)")
-      safe_join([shape, mark])
+      safe_join([ shape, mark ])
     end
   end
 
@@ -73,16 +73,16 @@ module ApplicationHelper
       end_min = event.ends_at ? event_minutes(event.ends_at) : start_min + 60
       # Overnight (ends next day) or missing end → run to the end of the day.
       end_min = 1440 if end_min <= start_min
-      end_min = [end_min, 1440].min
+      end_min = [ end_min, 1440 ].min
       lane = lane_ends.index { |e| e <= start_min } || lane_ends.size
       lane_ends[lane] = end_min
       { event: event, start: start_min, end: end_min, lane: lane }
     end
-    total = [lane_ends.size, 1].max
+    total = [ lane_ends.size, 1 ].max
     placed.map do |p|
       { event: p[:event],
         top: (p[:start] / 60.0 * WEEK_HOUR_PX).round(1),
-        height: [(p[:end] - p[:start]) / 60.0 * WEEK_HOUR_PX, 20].max.round(1),
+        height: [ (p[:end] - p[:start]) / 60.0 * WEEK_HOUR_PX, 20 ].max.round(1),
         left: (p[:lane].to_f / total * 100).round(2),
         width: (100.0 / total).round(2) }
     end
@@ -98,8 +98,8 @@ module ApplicationHelper
     bars = (spans || []).filter_map do |sp|
       next if sp[:to] < wk_start || sp[:from] > wk_start + 6
 
-      seg_start = [sp[:from], wk_start].max
-      seg_end = [sp[:to], wk_end].min
+      seg_start = [ sp[:from], wk_start ].max
+      seg_end = [ sp[:to], wk_end ].min
       { event: sp[:event],
         col: (seg_start - wk_start).to_i + 1,
         span: (seg_end - seg_start).to_i + 1,
@@ -108,7 +108,7 @@ module ApplicationHelper
     end
 
     # Greedy lane packing: longest/earliest first, lowest free lane.
-    bars.sort_by! { |b| [b[:col], -b[:span]] }
+    bars.sort_by! { |b| [ b[:col], -b[:span] ] }
     lane_last = []
     bars.each do |b|
       lane = (0..lane_last.size).find { |l| lane_last[l].nil? || lane_last[l] < b[:col] }
@@ -132,7 +132,7 @@ module ApplicationHelper
   # A square, resized avatar thumbnail (avoids serving the full-size upload).
   # px is the CSS display size; we render at 2× for retina sharpness.
   def avatar_image_tag(user, px)
-    image_tag user.avatar.variant(resize_to_fill: [px * 2, px * 2]), class: "avatar-img", alt: user.display_name
+    image_tag user.avatar.variant(resize_to_fill: [ px * 2, px * 2 ]), class: "avatar-img", alt: user.display_name
   end
 
   # The current user's relationship to a note, for the card/badge label.

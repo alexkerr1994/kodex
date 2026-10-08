@@ -65,15 +65,15 @@ class CalendarController < ApplicationController
     events.each do |event|
       event.occurrence_dates(from, to).each { |date| buckets[date] << event }
     end
-    buckets.each_value { |list| list.sort_by! { |e| [e.all_day? ? 0 : 1, e.starts_at] } }
+    buckets.each_value { |list| list.sort_by! { |e| [ e.all_day? ? 0 : 1, e.starts_at ] } }
     buckets
   end
 
   # Multi-day events as {event:, from:, to:} with the range clipped to the grid.
   def day_spans(events, from, to)
     events.filter_map do |event|
-      f = [event.starts_at.in_time_zone.to_date, from].max
-      t = [event.ends_at.in_time_zone.to_date, to].min
+      f = [ event.starts_at.in_time_zone.to_date, from ].max
+      t = [ event.ends_at.in_time_zone.to_date, to ].min
       next if f > t
 
       { event: event, from: f, to: t }

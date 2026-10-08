@@ -45,7 +45,7 @@ class CalendarsTest < ActionDispatch::IntegrationTest
     event = cal.events.create!(title: "Standup", starts_at: Time.zone.local(2026, 6, 1, 9, 0),
                                recurrence: "weekly")
     dates = event.occurrence_dates(Date.new(2026, 6, 1), Date.new(2026, 6, 30))
-    assert_equal [1, 8, 15, 22, 29].map { |d| Date.new(2026, 6, d) }, dates
+    assert_equal [ 1, 8, 15, 22, 29 ].map { |d| Date.new(2026, 6, d) }, dates
   end
 
   test "recurrence stops at recurrence_until" do
@@ -53,7 +53,7 @@ class CalendarsTest < ActionDispatch::IntegrationTest
     event = cal.events.create!(title: "Daily", starts_at: Time.zone.local(2026, 6, 1, 9, 0),
                                recurrence: "daily", recurrence_until: Date.new(2026, 6, 3))
     dates = event.occurrence_dates(Date.new(2026, 6, 1), Date.new(2026, 6, 30))
-    assert_equal [1, 2, 3].map { |d| Date.new(2026, 6, d) }, dates
+    assert_equal [ 1, 2, 3 ].map { |d| Date.new(2026, 6, d) }, dates
   end
 
   test "the week view renders a 7-day time grid with positioned events" do

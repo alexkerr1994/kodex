@@ -95,7 +95,7 @@ Rails.application.configure do
   # Enable DNS rebinding protection and other `Host` header attacks. Locked to the
   # app's domain (APP_HOST and/or Railway's public domain) when known; left open
   # otherwise so a first boot without the vars configured isn't locked out.
-  allowed_hosts = [ENV["APP_HOST"], ENV["RAILWAY_PUBLIC_DOMAIN"]].compact_blank
+  allowed_hosts = [ ENV["APP_HOST"], ENV["RAILWAY_PUBLIC_DOMAIN"] ].compact_blank
   if allowed_hosts.any?
     allowed_hosts.each do |host|
       config.hosts << host

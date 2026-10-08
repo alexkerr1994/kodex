@@ -35,7 +35,7 @@ class User < ApplicationRecord
   end
 
   # Selectable UI themes (see application.css). Keep in sync with the theme blocks.
-  THEMES = %w[quill clean paper modern].freeze
+  THEMES = %w[quill clean paper modern tron].freeze
   DEFAULT_VIEWS = %w[list board].freeze
   # Public-holiday regions offered in settings (code → label), backed by the
   # `holidays` gem. Blank = no holiday overlay. Curated subset of common regions.

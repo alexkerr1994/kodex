@@ -101,6 +101,29 @@
   --alert-bg: #7f1d1d;  --alert-text: #fecaca;
 }
 
+/* Tron — electric neon / 80s synthwave on near-black */
+[data-theme="tron"] {
+  --bg: #05070f;
+  --surface: #0a1020;
+  --surface-2: #111a32;
+  --text: #d8f6ff;
+  --muted: #6f8ba6;
+  --accent: #00e5ff;
+  --accent-contrast: #02131a;
+  --danger: #ff2e88;
+  --border: #16324a;
+  --header-bg: #070b16;
+  --badge-bg: #0b2a38;
+  --badge-text: #7df9ff;
+  --radius: 10px;
+  --shadow: 0 0 20px rgba(0, 229, 255, 0.07), 0 10px 30px rgba(0, 0, 0, 0.6);
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-head: var(--font-body);
+  --notice-bg: #04231f; --notice-text: #5ffbd0;
+  --alert-bg: #2a0a1c;  --alert-text: #ff8fc2;
+  --active-bg: #0b2a38; --active-border: #0e4a60; --active-text: #7df9ff;
+}
+
 /* ----------------------------------------------------------------- Base -- */
 
 * { box-sizing: border-box; }
@@ -264,6 +287,30 @@ mark {
   border-bottom: 2px solid var(--border); padding-bottom: .25rem;
 }
 [data-theme="paper"] .note-card { border-left: 3px solid var(--accent); }
+
+/* ------------------------------------------- Tron neon flourishes -- */
+/* Glowing primary buttons, active nav, brand mark, and big headings. */
+[data-theme="tron"] .btn:not(.ghost) {
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+[data-theme="tron"] .btn:not(.ghost):hover {
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+[data-theme="tron"] .nav-item.active {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+              0 0 14px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+[data-theme="tron"] .kodex-badge {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+[data-theme="tron"] h1,
+[data-theme="tron"] .brand-text {
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+[data-theme="tron"] .cal-day.is-today,
+[data-theme="tron"] .cal-daynum.is-today-num {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent);
+}
 
 /* ------------------------------------------------------- Inline editor -- */
 
@@ -658,7 +705,7 @@ a.member-name:hover { color: var(--accent); }
 .referral-form { display: flex; gap: .5rem; align-items: center; }
 .referral-form input { flex: 1; min-width: 0; }
 .field-label { display: block; font-weight: 500; margin-bottom: .4rem; }
-.theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+.theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: .5rem; }
 .theme-option {
   display: flex; flex-direction: column; align-items: center; gap: .45rem; cursor: pointer;
   text-align: center; border: 1px solid var(--border); border-radius: var(--radius); padding: .6rem .4rem;

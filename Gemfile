@@ -75,6 +75,6 @@ gem "json", "~> 2.21"
 gem "commonmarker", "~> 2.10"
 
 # Offline public-holiday data (per-region) for the calendar overlay.
-gem "holidays", "~> 8.8"
+gem "holidays", "~> 11.7"
 
 gem "letter_opener_web", "~> 3.0", group: :development

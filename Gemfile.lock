@@ -146,7 +146,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.4.0)
       activesupport (>= 6.1)
-    holidays (8.8.0)
+    holidays (11.7.0)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     image_processing (1.14.0)
@@ -445,7 +445,7 @@ DEPENDENCIES
   commonmarker (~> 2.10)
   debug
   devise (~> 5.0)
-  holidays (~> 8.8)
+  holidays (~> 11.7)
   image_processing (~> 1.2)
   importmap-rails
   jbuilder

@@ -11,9 +11,15 @@
     <%= f.text_field :login, autofocus: true, autocomplete: "username", placeholder: "you or you@example.com", class: "auth-input" %>
   </div>
 
-  <div class="auth-field">
+  <div class="auth-field" data-controller="password-toggle">
     <%= f.label :password, "Password" %>
-    <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••", class: "auth-input" %>
+    <div class="auth-input-wrap">
+      <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••", class: "auth-input", data: { password_toggle_target: "input" } %>
+      <button type="button" class="pw-toggle" data-action="password-toggle#toggle" data-password-toggle-target="button" aria-label="Show password" aria-pressed="false">
+        <span data-password-toggle-target="show"><%= icon(:eye, size: 18) %></span>
+        <span data-password-toggle-target="hide" hidden><%= icon(:eye_off, size: 18) %></span>
+      </button>
+    </div>
   </div>
 
   <% if devise_mapping.rememberable? %>

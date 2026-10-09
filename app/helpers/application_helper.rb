@@ -21,6 +21,8 @@ module ApplicationHelper
     close:    %(<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>),
     chevron:  %(<polyline points="6 9 12 15 18 9"/>),
     arrow_left: %(<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>),
+    eye:      %(<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>),
+    eye_off:  %(<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>),
     board:    %(<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/>),
     collapse: %(<rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/>),
     kodex:    %(<line x1="12" y1="3" x2="12" y2="21"/><line x1="12" y1="12" x2="4" y2="4"/><line x1="12" y1="12" x2="4" y2="20"/><line x1="12" y1="12" x2="20" y2="4"/><line x1="12" y1="12" x2="20" y2="20"/>),

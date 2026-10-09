@@ -997,6 +997,16 @@ a.member-name:hover { color: var(--accent); }
 }
 .auth-input { transition: border-color .15s ease, box-shadow .15s ease; }
 .auth-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+/* Password field with a show/hide eye toggle. */
+.auth-input-wrap { position: relative; display: flex; }
+.auth-input-wrap .auth-input { padding-right: 2.75rem; }
+.pw-toggle {
+  position: absolute; top: 0; right: 0; height: 100%; width: 2.6rem;
+  display: grid; place-items: center; background: none; border: 0;
+  color: var(--muted); cursor: pointer;
+}
+.pw-toggle:hover { color: var(--text); }
+.pw-toggle [hidden] { display: none; }
 .auth-remember { display: flex; align-items: center; gap: .5rem; font-size: .85rem; color: var(--muted); }
 .auth-remember input { accent-color: var(--accent); }
 

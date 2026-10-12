@@ -15,6 +15,15 @@ class NoteSharesController < ApplicationController
     respond_with_sharing
   end
 
+  # Change a person's access level (viewer/editor).
+  def update
+    authorize @note, :manage_sharing?
+    membership = @note.note_memberships.find(params[:id])
+    membership.update(access_level: params[:access_level])
+    flash.now[:share_notice] = "Updated #{membership.user.display_name}'s access."
+    respond_with_sharing
+  end
+
   # Remove a member's access.
   def destroy
     authorize @note, :manage_sharing?

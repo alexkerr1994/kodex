@@ -12,9 +12,13 @@
     <ul class="member-list">
       <% memberships.each do |m| %>
         <li>
-          <span class="member-name"><%= m.user.display_name %></span>
-          <span class="badge role-<%= m.access_level %>"><%= m.access_level.titleize %></span>
-          <%= button_to "Remove", note_share_path(note, m), method: :delete, class: "linkish member-remove" %>
+          <span class="member-name"><%= m.user.display_name %> <small class="muted">@<%= m.user.username %></small></span>
+          <%= form_with url: note_share_path(note, m), method: :patch, class: "role-form", data: { controller: "autosubmit" } do %>
+            <%= select_tag :access_level, options_for_select([["Viewer", "viewer"], ["Editor", "editor"]], m.access_level),
+                  class: "role-select", data: { action: "change->autosubmit#submit" } %>
+          <% end %>
+          <%= button_to note_share_path(note, m), method: :delete, class: "icon-btn member-remove", title: "Remove access",
+                form: { data: { turbo_confirm: "Remove #{m.user.display_name}'s access?" } } do %><%= icon(:close, size: 16) %><% end %>
         </li>
       <% end %>
     </ul>
@@ -25,9 +29,13 @@
     <ul class="member-list">
       <% network_shares.each do |s| %>
         <li>
-          <span class="member-name"><%= s.network.name %></span>
-          <span class="badge role-<%= s.access_level %>"><%= s.access_level.titleize %></span>
-          <%= button_to "Remove", note_network_share_path(note, s), method: :delete, class: "linkish member-remove" %>
+          <span class="member-name"><%= s.network.name %> <small class="muted">network</small></span>
+          <%= form_with url: note_network_share_path(note, s), method: :patch, class: "role-form", data: { controller: "autosubmit" } do %>
+            <%= select_tag :access_level, options_for_select([["Viewer", "viewer"], ["Editor", "editor"]], s.access_level),
+                  class: "role-select", data: { action: "change->autosubmit#submit" } %>
+          <% end %>
+          <%= button_to note_network_share_path(note, s), method: :delete, class: "icon-btn member-remove", title: "Stop sharing with this network",
+                form: { data: { turbo_confirm: "Stop sharing with the #{s.network.name} network?" } } do %><%= icon(:close, size: 16) %><% end %>
         </li>
       <% end %>
     </ul>

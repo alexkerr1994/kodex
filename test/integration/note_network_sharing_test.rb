@@ -72,7 +72,32 @@ class NoteNetworkSharingTest < ActionDispatch::IntegrationTest
     @note.note_network_shares.create!(network: @net, access_level: :viewer)
     sign_in @owner
     get note_path(@note)
-    assert_select "#note_sharing .member-name", text: "Team"
+    assert_select "#note_sharing .member-name", text: /Team/
     assert_select "select[name=share_with]"
+    assert_select ".role-select" # inline permission dropdown on the row
+  end
+
+  test "owner can change a person's access level inline" do
+    membership = @note.note_memberships.create!(user: @alice, access_level: :viewer)
+    sign_in @owner
+    patch note_share_path(@note, membership), params: { access_level: "editor" },
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_equal "editor", membership.reload.access_level
+    assert @note.reload.editable_by?(@alice)
+  end
+
+  test "owner can change a network share's access level inline" do
+    share = @note.note_network_shares.create!(network: @net, access_level: :viewer)
+    sign_in @owner
+    patch note_network_share_path(@note, share), params: { access_level: "editor" },
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_equal "editor", share.reload.access_level
+  end
+
+  test "a non-manager cannot change access levels" do
+    membership = @note.note_memberships.create!(user: @alice, access_level: :viewer)
+    sign_in @alice # a viewer, not the owner
+    patch note_share_path(@note, membership), params: { access_level: "editor" }
+    assert_equal "viewer", membership.reload.access_level
   end
 end

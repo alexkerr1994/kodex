@@ -266,14 +266,25 @@ mark {
 .member-name { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .member-list .badge { flex: none; margin-left: 0; }
 .member-remove { flex: none; }
+/* Inline per-row permission dropdown (Viewer/Editor) in the sharing lists. */
+.role-form { margin: 0; flex: none; }
+.role-select {
+  padding: .3rem 1.6rem .3rem .55rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text); font: inherit; font-size: .82rem; cursor: pointer;
+}
+.role-select:focus { outline: none; border-color: var(--accent); }
 
 .share-link { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
 .share-link-row { display: flex; gap: .5rem; align-items: center; margin-top: .4rem; }
 .share-link-row input { flex: 1; }
 .share-form { display: flex; gap: .5rem; align-items: center; margin-top: 1rem; }
-.share-form input { flex: 1 1 auto; min-width: 0; }
-.share-form select { flex: 0 0 6.5rem; }
-.share-form .btn { flex: 0 0 auto; }
+/* The wide field (person/network picker OR the email box) takes the space; the
+   role dropdown and Share button stay compact. */
+.share-form input[type="email"],
+.share-form select[name="share_with"] { flex: 1 1 auto; min-width: 0; }
+.share-form select[name="access_level"] { flex: 0 0 6.5rem; }
+.share-form .btn,
+.share-form input[type="submit"] { flex: 0 0 auto; }
 
 .errors {
   background: var(--alert-bg); color: var(--alert-text);

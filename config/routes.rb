@@ -57,11 +57,11 @@ Rails.application.routes.draw do
       patch :move_tag
     end
     resource :archival, only: %i[create destroy], controller: "archivals"
-    resources :shares, only: %i[create destroy], controller: "note_shares"
+    resources :shares, only: %i[create update destroy], controller: "note_shares"
     resources :tags, only: %i[create destroy], controller: "note_tags"
     resources :shared_tags, only: %i[create destroy], controller: "note_shared_tags"
     resource :favorite, only: %i[create destroy], controller: "favorites"
-    resources :network_shares, only: %i[destroy], controller: "note_network_shares"
+    resources :network_shares, only: %i[update destroy], controller: "note_network_shares"
     resource :filing, only: %i[update], controller: "note_filings"
   end
 

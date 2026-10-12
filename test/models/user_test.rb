@@ -46,28 +46,51 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "quiet.one", unnamed.display_name
   end
 
-  test "friends include network co-members and note collaborators, excluding self and strangers" do
+  test "friends are only accepted friendships (either direction), not pending ones" do
+    me      = User.create!(name: "Me",      email: "me@test.com",      password: "password123")
+    pal     = User.create!(name: "Pal",     email: "pal@test.com",     password: "password123")
+    fan     = User.create!(name: "Fan",     email: "fan@test.com",     password: "password123")
+    pending = User.create!(name: "Pending", email: "pending@test.com", password: "password123")
+
+    Friendship.create!(requester: me,  addressee: pal, status: :accepted) # I requested, accepted
+    Friendship.create!(requester: fan, addressee: me,  status: :accepted) # they requested, accepted
+    Friendship.create!(requester: me,  addressee: pending)                # still pending
+
+    names = me.friends.map(&:name)
+    assert_includes names, "Pal"
+    assert_includes names, "Fan"
+    assert_not_includes names, "Pending"
+    assert me.friends_with?(pal)
+    assert_not me.friends_with?(pending)
+  end
+
+  test "incoming and outgoing friend requests" do
+    me  = User.create!(name: "Me",  email: "me@test.com",  password: "password123")
+    her = User.create!(name: "Her", email: "her@test.com", password: "password123")
+    him = User.create!(name: "Him", email: "him@test.com", password: "password123")
+
+    Friendship.create!(requester: her, addressee: me)  # incoming
+    Friendship.create!(requester: me,  addressee: him) # outgoing
+
+    assert_equal [ her ], me.incoming_friend_requests.map(&:requester)
+    assert_equal [ him ], me.outgoing_friend_requests.map(&:addressee)
+  end
+
+  test "shareable_people includes friends and network co-members, not strangers" do
     me       = User.create!(name: "Me",       email: "me@test.com",       password: "password123")
+    friend   = User.create!(name: "Friend",   email: "friend@test.com",   password: "password123")
     peer     = User.create!(name: "Peer",     email: "peer@test.com",     password: "password123")
-    sharee   = User.create!(name: "Sharee",   email: "sharee@test.com",   password: "password123")
-    sharer   = User.create!(name: "Sharer",   email: "sharer@test.com",   password: "password123")
     stranger = User.create!(name: "Stranger", email: "stranger@test.com", password: "password123")
 
+    Friendship.create!(requester: me, addressee: friend, status: :accepted)
     net = Network.create!(name: "Team")
     net.network_memberships.create!(user: me,   role: :admin)
     net.network_memberships.create!(user: peer, role: :member)
 
-    mine = Note.create!(owner: me, title: "Mine")
-    mine.note_memberships.create!(user: sharee, access_level: :viewer)
-
-    theirs = Note.create!(owner: sharer, title: "Theirs")
-    theirs.note_memberships.create!(user: me, access_level: :viewer)
-
-    names = me.friends.map(&:name)
-    assert_includes names, "Peer"    # network co-member
-    assert_includes names, "Sharee"  # I shared a note with them
-    assert_includes names, "Sharer"  # they shared a note with me
-    assert_not_includes names, "Me"       # never self
-    assert_not_includes names, "Stranger" # no connection
+    ids = me.shareable_people.pluck(:id)
+    assert_includes ids, friend.id
+    assert_includes ids, peer.id
+    assert_not_includes ids, stranger.id
+    assert_not_includes ids, me.id
   end
 end

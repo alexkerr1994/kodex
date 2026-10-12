@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_122015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -114,6 +114,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
     t.integer "user_id", null: false
     t.index ["user_id", "name"], name: "index_folders_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_folders_on_user_id"
+  end
+
+  create_table "friendships", force: :cascade do |t|
+    t.bigint "addressee_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "requester_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["addressee_id"], name: "index_friendships_on_addressee_id"
+    t.index ["requester_id", "addressee_id"], name: "index_friendships_on_requester_id_and_addressee_id", unique: true
+    t.index ["requester_id"], name: "index_friendships_on_requester_id"
   end
 
   create_table "network_invitations", force: :cascade do |t|
@@ -438,6 +449,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   add_foreign_key "favorites", "notes"
   add_foreign_key "favorites", "users"
   add_foreign_key "folders", "users"
+  add_foreign_key "friendships", "users", column: "addressee_id"
+  add_foreign_key "friendships", "users", column: "requester_id"
   add_foreign_key "network_invitations", "networks"
   add_foreign_key "network_invitations", "users", column: "invited_by_id"
   add_foreign_key "network_invitations", "users", column: "invited_user_id"

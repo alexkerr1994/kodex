@@ -127,6 +127,11 @@ class User < ApplicationRecord
   # Pending invitations addressed to this user.
   has_many :network_invitations, foreign_key: :invited_user_id, dependent: :destroy, inverse_of: :invited_user
 
+  # Friendships (request/accept), independent of networks. One row per pair;
+  # direction records who sent the request.
+  has_many :sent_friendships, class_name: "Friendship", foreign_key: :requester_id, dependent: :destroy, inverse_of: :requester
+  has_many :received_friendships, class_name: "Friendship", foreign_key: :addressee_id, dependent: :destroy, inverse_of: :addressee
+
   # All notes this user can access (owned + shared), as a single relation.
   def accessible_notes
     Note.where(owner_id: id).or(Note.where(id: note_memberships.select(:note_id)))
@@ -136,14 +141,41 @@ class User < ApplicationRecord
     name.presence || username
   end
 
-  # Lightweight "friends" = people this user already collaborates with:
-  # co-members of their networks, people they've shared notes with, and owners of
-  # notes shared with them. Distinct, excludes self.
+  # IDs of this user's accepted friends (either direction).
+  def friend_ids
+    Friendship.accepted
+              .where("requester_id = :id OR addressee_id = :id", id: id)
+              .pluck(:requester_id, :addressee_id).flatten.uniq - [ id ]
+  end
+
+  # Accepted friends.
   def friends
-    ids = NetworkMembership.where(network_id: network_memberships.select(:network_id)).distinct.pluck(:user_id)
-    ids += Note.where(id: note_memberships.select(:note_id)).distinct.pluck(:owner_id)
-    ids += NoteMembership.where(note_id: owned_notes.select(:id)).distinct.pluck(:user_id)
-    User.where(id: ids.uniq - [ id ]).order(:name)
+    User.where(id: friend_ids).order(:name)
+  end
+
+  def friends_with?(user)
+    Friendship.accepted.where(
+      "(requester_id = :me AND addressee_id = :them) OR (requester_id = :them AND addressee_id = :me)",
+      me: id, them: user.id
+    ).exists?
+  end
+
+  # Friend requests waiting on this user to accept, and ones they've sent.
+  def incoming_friend_requests
+    Friendship.pending.where(addressee_id: id).includes(:requester).order(:created_at)
+  end
+
+  def outgoing_friend_requests
+    Friendship.pending.where(requester_id: id).includes(:addressee).order(:created_at)
+  end
+
+  # People this user can share notes/calendars with directly: their friends plus
+  # anyone who shares a network with them. Excludes self.
+  def shareable_people
+    network_people_ids = NetworkMembership
+                           .where(network_id: network_memberships.select(:network_id))
+                           .pluck(:user_id)
+    User.where(id: (friend_ids + network_people_ids).uniq - [ id ])
   end
 
   # Public holidays for this user's chosen region within a date window, as

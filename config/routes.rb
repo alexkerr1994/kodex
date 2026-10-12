@@ -42,6 +42,11 @@ Rails.application.routes.draw do
     end
   end
 
+  # Friendships (request / accept / decline / cancel / unfriend).
+  resources :friendships, only: %i[create destroy] do
+    member { post :accept }
+  end
+
   # No new/edit: notes are created via a POST button and edited inline in the
   # detail pane (no standalone form pages).
   resources :notes, except: %i[new edit] do

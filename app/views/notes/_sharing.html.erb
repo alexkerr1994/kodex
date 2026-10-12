@@ -41,16 +41,14 @@
   <% shared_network_ids = network_shares.map(&:network_id) %>
   <% networks_available = current_user.networks.order(:name).reject { |n| shared_network_ids.include?(n.id) } %>
   <% excluded_ids = memberships.map(&:user_id) + [note.owner_id] %>
-  <% people_available = User.joins(:network_memberships)
-                           .where(network_memberships: { network_id: current_user.networks.select(:id) })
-                           .where.not(id: excluded_ids).distinct.order(:name) %>
+  <% people_available = current_user.shareable_people.where.not(id: excluded_ids).order(:name) %>
 
   <% if networks_available.any? || people_available.any? %>
     <%= form_with url: note_shares_path(note), method: :post, class: "share-form" do %>
       <%= select_tag :share_with,
             grouped_options_for_select([
               ["Networks", networks_available.map { |n| [n.name, "network:#{n.id}"] }],
-              ["People in your networks", people_available.map { |u| [u.display_name, "user:#{u.id}"] }]
+              ["Friends & network members", people_available.map { |u| [u.display_name, "user:#{u.id}"] }]
             ]),
             prompt: "Choose a network or person", required: true %>
       <%= select_tag :access_level, options_for_select([["Viewer", "viewer"], ["Editor", "editor"]]) %>

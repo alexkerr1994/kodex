@@ -34,8 +34,8 @@ class CalendarSharesController < ApplicationController
       @calendar.calendar_network_shares.find_or_create_by(network: network)
       flash.now[:share_notice] = "Shared with the #{network.name} network."
     when "user"
-      user = network_people.find_by(id: id)
-      return flash.now[:share_alert] = "That person isn't in your networks." unless user
+      user = current_user.shareable_people.find_by(id: id)
+      return flash.now[:share_alert] = "You can only share with friends or people in your networks." unless user
 
       add_share(user)
     end
@@ -55,12 +55,6 @@ class CalendarSharesController < ApplicationController
       @calendar.calendar_shares.find_or_create_by(user: user)
       flash.now[:share_notice] = "Shared with #{user.display_name}."
     end
-  end
-
-  def network_people
-    User.joins(:network_memberships)
-        .where(network_memberships: { network_id: current_user.networks.select(:id) })
-        .where.not(id: current_user.id).distinct
   end
 
   def respond_with_sharing

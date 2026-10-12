@@ -38,20 +38,55 @@
   <% end %>
 </section>
 
-<% friends = current_user.friends %>
+<% incoming = current_user.incoming_friend_requests
+   outgoing = current_user.outgoing_friend_requests
+   friends  = current_user.friends %>
 <section class="settings-group">
   <h3>Friends</h3>
+  <p class="muted">Friends can share notes and calendars with you directly, even without a shared network.</p>
+
+  <% if incoming.any? %>
+    <h4 class="settings-subhead">Requests for you</h4>
+    <ul class="member-list">
+      <% incoming.each do |req| %>
+        <li>
+          <span class="member-name"><%= req.requester.display_name %> <small class="muted">@<%= req.requester.username %></small></span>
+          <%= button_to "Accept", accept_friendship_path(req), method: :post, class: "btn small" %>
+          <%= button_to "Decline", friendship_path(req), method: :delete, class: "btn ghost small" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
   <% if friends.any? %>
-    <p class="muted">People you collaborate with across your networks and shared notes.</p>
     <ul class="member-list">
       <% friends.each do |friend| %>
         <li>
-          <span class="member-name"><%= friend.display_name %></span>
-          <span class="muted">@<%= friend.username %></span>
+          <span class="member-name"><%= friend.display_name %> <small class="muted">@<%= friend.username %></small></span>
+          <%= button_to "Remove", friendship_path(Friendship.between(current_user, friend)), method: :delete, class: "btn ghost small",
+                form: { data: { turbo_confirm: "Remove #{friend.display_name} as a friend?" } } %>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="muted">No connections yet — join a network or share a note to connect with people.</p>
+    <p class="muted">No friends yet — add someone below.</p>
+  <% end %>
+
+  <% if outgoing.any? %>
+    <h4 class="settings-subhead">Pending</h4>
+    <ul class="member-list">
+      <% outgoing.each do |req| %>
+        <li>
+          <span class="member-name"><%= req.addressee.display_name %> <small class="muted">@<%= req.addressee.username %></small></span>
+          <span class="badge">Requested</span>
+          <%= button_to "Cancel", friendship_path(req), method: :delete, class: "btn ghost small" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= form_with url: friendships_path, method: :post, class: "referral-form" do %>
+    <%= text_field_tag :identifier, nil, placeholder: "Add a friend by username or email", required: true %>
+    <%= submit_tag "Send request", class: "btn" %>
   <% end %>
 </section>

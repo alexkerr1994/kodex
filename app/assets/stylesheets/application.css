@@ -25,7 +25,7 @@
   --badge-text: #3730a3;
   --radius: 8px;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-head: var(--font-body);
   --notice-bg: #ecfdf5; --notice-text: #065f46;
   --alert-bg: #fef2f2;  --alert-text: #991b1b;
@@ -50,7 +50,7 @@
   --badge-text: #7c6a58;
   --radius: 14px;
   --shadow: 0 1px 2px rgba(90, 70, 50, 0.05);
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-head: var(--font-body);
   --notice-bg: #eef3e6; --notice-text: #4f6034;
   --alert-bg: #f8e5df;  --alert-text: #8f3320;
@@ -95,7 +95,7 @@
   --badge-text: #c7d2fe;
   --radius: 12px;
   --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-head: var(--font-body);
   --notice-bg: #064e3b; --notice-text: #a7f3d0;
   --alert-bg: #7f1d1d;  --alert-text: #fecaca;
@@ -117,7 +117,7 @@
   --badge-text: #7df9ff;
   --radius: 10px;
   --shadow: 0 0 20px rgba(0, 229, 255, 0.07), 0 10px 30px rgba(0, 0, 0, 0.6);
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-head: var(--font-body);
   --notice-bg: #04231f; --notice-text: #5ffbd0;
   --alert-bg: #2a0a1c;  --alert-text: #ff8fc2;

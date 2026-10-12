@@ -11,6 +11,11 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%# App-wide font: Space Grotesk (see --font-body in application.css). %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap">
+
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
